@@ -27,7 +27,7 @@ const features = [
     icon: Globe,
     title: "Multi-currency, everywhere.",
     description:
-      "Track in USD, EUR, PKR, AED, or any other currency. Expenses are stored with the currency you set — no manual conversion, no extra steps.",
+      "Track in USD, EUR, GBP, AED, or any other currency. Expenses are stored with the currency you set — no manual conversion, no extra steps.",
   },
   {
     number: "05",
