@@ -20,6 +20,7 @@ const TransactionTable = (props: {
   pageSize?: number;
   isShowPagination?: boolean;
 }) => {
+  const ALL_TRANSACTION_TYPES = "ALL_TRANSACTION_TYPES";
   const [filter, setFilter] = useState<FilterType>({
     type: undefined,
     recurringStatus: undefined,
@@ -59,7 +60,10 @@ const TransactionTable = (props: {
     const { type, frequently } = filters;
     setFilter((prev) => ({
       ...prev,
-      type: type as _TransactionType,
+      type:
+        type && type !== ALL_TRANSACTION_TYPES
+          ? (type as _TransactionType)
+          : undefined,
       recurringStatus: frequently as "RECURRING" | "NON_RECURRING",
     }));
   };
@@ -97,6 +101,7 @@ const TransactionTable = (props: {
           key: "type",
           label: "All Types",
           options: [
+            { value: ALL_TRANSACTION_TYPES, label: "All Types" },
             { value: _TRANSACTION_TYPE.INCOME, label: "Income" },
             { value: _TRANSACTION_TYPE.EXPENSE, label: "Expense" },
           ],
