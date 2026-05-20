@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.1](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.0.0...voiceybill-client-v1.0.1) (2026-05-20)
+
+
+### Bug Fixes
+
+* **account:** prevent update when no changes made ([57bf287](https://github.com/voiceyBill/voiceyBill-web/commit/57bf287ddb0d26b3b69ab4893cfec727947d1551))
+* dashboard overview stats cards summary ([413c11e](https://github.com/voiceyBill/voiceyBill-web/commit/413c11e236b3c048bafab4076538e38d488cee46))
+* Dashboard overview stats cards summary ([5b7b7ef](https://github.com/voiceyBill/voiceyBill-web/commit/5b7b7efa484eebd7e293efa2c60950e6ab4e274e))
+* Prevent update when no changes are made ([59889c2](https://github.com/voiceyBill/voiceyBill-web/commit/59889c2d2d3307b2617a5d6f79896434cb1e8b0c))
+
 ## 1.0.0 (2026-05-17)
 
 
