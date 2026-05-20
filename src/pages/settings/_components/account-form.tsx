@@ -50,7 +50,7 @@ export function AccountForm() {
   });
 
   const onSubmit = (values: AccountFormValues) => {
-    console.log(values);
+    // remove console
     if (isLoading) return;
 
     const formData = new FormData();
