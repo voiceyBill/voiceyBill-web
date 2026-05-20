@@ -49,9 +49,11 @@ export function AccountForm() {
     },
   });
 
+  const { isDirty } = form.formState;
+  const hasChanges = isDirty || !!file;
+
   const onSubmit = (values: AccountFormValues) => {
-    console.log(values);
-    if (isLoading) return;
+    if (isLoading || !hasChanges) return;
 
     const formData = new FormData();
     formData.append("name", values.name || "");
@@ -135,7 +137,7 @@ export function AccountForm() {
             </FormItem>
           )}
         />
-        <Button disabled={isLoading} type="submit">
+        <Button disabled={isLoading || !hasChanges} type="submit">
           {isLoading && <Loader className="h-4 w-4 animate-spin" />}
           Update account
         </Button>
