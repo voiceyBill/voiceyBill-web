@@ -17,6 +17,7 @@ export interface RegisterResponse {
 	data?: {
 		user: AuthUser;
 		verificationRequired: boolean;
+		emailSent?: boolean;
 	};
 }
 

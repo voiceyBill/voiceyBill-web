@@ -35,30 +35,42 @@ const SignUpForm = () => {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (values: FormValues) => {
-    register(values)
-      .unwrap()
-      .then(() => {
-        form.reset();
-        toast.success("Verification code sent to your email");
-        navigate({
-          pathname: AUTH_ROUTES.VERIFY_OTP,
-          search: createSearchParams({ email: values.email }).toString(),
-        });
-      })
-      .catch((error) => {
-        const apiError = error as ErrorResponse;
+  const onSubmit = async (values: FormValues) => {
+    try {
+      const res = await register(values).unwrap();
 
-        if (apiError.data?.errorCode === "AUTH_EMAIL_ALREADY_EXISTS") {
-          toast.error(
-            apiError.data?.message ||
-              "An account with this email already exists. Please sign in instead."
-          );
-          return;
-        }
+      const emailSent = res?.data?.emailSent;
+      const serverMessage = res?.message;
 
-        toast.error(apiError.data?.message || "Failed to sign up");
+      form.reset();
+
+      if (emailSent === false) {
+        toast.warning(
+          serverMessage ||
+            "Registration successful, but we couldn't send the verification email. Please check your inbox or contact support."
+        );
+      } else {
+        toast.success(serverMessage || "Verification code sent to your email");
+      }
+
+      navigate({
+        pathname: AUTH_ROUTES.VERIFY_OTP,
+        search: createSearchParams({ email: values.email }).toString(),
       });
+    } catch (err) {
+      const apiError = err as ErrorResponse;
+
+      if (apiError?.data?.errorCode === "AUTH_EMAIL_ALREADY_EXISTS") {
+        toast.error(
+          apiError.data?.message ||
+            "An account with this email already exists. Please sign in instead."
+        );
+        return;
+      }
+
+      // Generic fallback for network/server errors
+      toast.error(apiError?.data?.message || "Failed to sign up. Please try again.");
+    }
   };
 
   return (
