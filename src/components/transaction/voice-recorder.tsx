@@ -133,7 +133,6 @@ const VoiceRecorder = ({
         updateProgress(100);
         onVoiceComplete(result.data);
         setHasProcessedVoice(true);
-        console.log("Voice processed data:", result.data);
         toast.success("Voice processed! Form has been filled.");
         clearRecording();
       } else {

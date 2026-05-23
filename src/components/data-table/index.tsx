@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-// TableSkeleton removed in favor of a centered loading indicator
+import TableSkeleton from "./table-skeleton-loader";
 import { DataTablePagination } from "./table-pagination";
 import FlatListEmptyLoader from "@/components/FlatListEmptyLoader";
 
@@ -83,15 +83,10 @@ export function DataTable<TData>({
   onPageSizeChange,
 }: DataTableProps<TData>) {
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [filterValues, setFilterValues] = React.useState<
-    Record<string, string>
-  >({});
+  const [filterValues, setFilterValues] = React.useState<Record<string, string>>({});
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
@@ -121,7 +116,7 @@ export function DataTable<TData>({
   };
 
   const handleFilterChange = (key: string, value: string) => {
-    const updated = { ...filterValues, [key]: value };
+    const updated = { ...filterValues, [key]: value === "all" ? "" : value };
     setFilterValues(updated);
     onFilterChange?.(updated);
   };
@@ -135,25 +130,18 @@ export function DataTable<TData>({
   };
 
   const handleDelete = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const selectedIds = selectedRows.map((row) => (row.original as any).id);
     onBulkDelete?.(selectedIds);
     setRowSelection({});
   };
 
-  if (isLoading) {
-    return (
-      <div className="w-full flex items-center justify-center p-6">
-        <FlatListEmptyLoader isLoading={true} />
-      </div>
-    );
-  }
-
   return (
     <div className="w-full">
-      {/* Top Bar: Search & Filters */}
+
+      {/* Top Bar */}
       <div className="flex flex-wrap justify-between items-center gap-2 pb-4">
         <div className="flex items-center gap-2 flex-wrap flex-1">
+
           {showSearch && (
             <Input
               placeholder={searchPlaceholder}
@@ -163,6 +151,7 @@ export function DataTable<TData>({
               className="max-w-sm"
             />
           )}
+
           {filters.map(({ key, label, options }) => (
             <Select
               key={key}
@@ -177,6 +166,7 @@ export function DataTable<TData>({
                 </div>
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">{label}</SelectItem>
                 {options.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -217,52 +207,71 @@ export function DataTable<TData>({
 
       {/* Table */}
       <div className={cn("rounded-md border overflow-x-auto", className)}>
-        <Table
-          className={cn(
-            table.getRowModel().rows.length === 0 ? "h-[200px]" : ""
-          )}
-        >
-          <TableHeader className="sticky top-0 bg-muted z-10 ">
-            {table.getHeaderGroups().map((group) => (
-              <TableRow key={group.id}>
-                {group.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="!font-medium !text-[13px]"
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length > 0 ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="!text-[13.3px]">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
+
+        {isLoading ? (
+          <TableSkeleton
+            columns={columns.length}
+            rows={data.length > 0 ? data.length : 6}
+            cellHeight={data.length > 0 ? 48.6 : 52.8}
+          />
+        ) : (
+          <Table
+            className={cn(
+              table.getRowModel().rows.length === 0 ? "h-[200px]" : ""
+            )}
+          >
+
+            <TableHeader className="sticky top-0 bg-muted z-10">
+              {table.getHeaderGroups().map((group) => (
+                <TableRow key={group.id}>
+                  {group.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className="!font-medium !text-[13px]"
+                    >
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center h-24">
-                  <FlatListEmptyLoader
-                    isLoading={isLoading}
-                    isEmpty={!isLoading && table.getRowModel().rows.length === 0}
-                    emptyMessage="No records found"
-                  />
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+
+            <TableBody>
+              {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="!text-[13.3px]">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="text-center h-24">
+                    <FlatListEmptyLoader
+                      isLoading={isLoading}
+                      isEmpty={!isLoading && table.getRowModel().rows.length === 0}
+                      emptyMessage="No records found"
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+
+          </Table>
+        )}
+
       </div>
 
       {/* Pagination */}
@@ -278,6 +287,7 @@ export function DataTable<TData>({
           />
         </div>
       )}
+
     </div>
   );
 }

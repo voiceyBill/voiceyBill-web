@@ -42,8 +42,10 @@ const TransactionTable = (props: {
     pageSize: filter.pageSize,
   });
 
-  const transactions = data?.transations || [];
+  const transactions = data?.transactions || [];
+
   const loadingState = isLoading || isFetching;
+
   const pagination = {
     totalItems: data?.pagination?.totalCount || 0,
     totalPages: data?.pagination?.totalPages || 0,
@@ -58,6 +60,7 @@ const TransactionTable = (props: {
 
   const handleFilterChange = (filters: Record<string, string>) => {
     const { type, frequently } = filters;
+
     setFilter((prev) => ({
       ...prev,
       type: type as _TransactionType,
@@ -86,7 +89,7 @@ const TransactionTable = (props: {
 
   return (
     <DataTable
-      data={transactions} //transactions
+      data={transactions}
       columns={transactionColumns}
       searchPlaceholder="Search transactions..."
       isLoading={loadingState}
@@ -119,4 +122,5 @@ const TransactionTable = (props: {
     />
   );
 };
+
 export default TransactionTable;

@@ -24,7 +24,7 @@ const MobileSection = () => {
               className="bg-foreground text-background hover:bg-foreground/90 h-12 px-7"
               onClick={() =>
                 window.open(
-                  "https://expo.dev/accounts/zainulabedin/projects/smart-money-tracker-mobile/builds/c5df751e-384d-44e5-b38d-923c7061d19d",
+                  "https://expo.dev/accounts/voiceybill/projects/voiceybill-mobile/builds/5304e9d8-ee61-4716-a1eb-ef4086d72183",
                   "_blank"
                 )
               }
