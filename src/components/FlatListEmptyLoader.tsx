@@ -1,53 +1,31 @@
-import React from 'react';
-import { FlatList, View, ActivityIndicator, Text, StyleSheet, FlatListProps } from 'react-native';
+import { Loader } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 
-// Usage:
-// import FlatListWithEmptyLoader from 'react-native-flatlist-fixes/FlatListEmptyLoader';
-// <FlatListWithEmptyLoader
-//   data={items}
-//   isLoading={isLoading}
-//   renderItem={renderItem}
-//   keyExtractor={(i) => i.id}
-// />
-
-type Props<ItemT> = FlatListProps<ItemT> & {
-  isLoading?: boolean;
-  emptyMessage?: string;
+type Props = {
+	isLoading?: boolean;
+	isEmpty?: boolean;
+	emptyMessage?: string;
 };
 
-function FlatListWithEmptyLoader<ItemT = any>({
-  isLoading = false,
-  emptyMessage = 'No items',
-  ListEmptyComponent,
-  ...rest
-}: Props<ItemT>) {
-  const EmptyOrLoading = () => {
-    if (isLoading) {
-      return (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" />
-        </View>
-      );
-    }
+const FlatListEmptyLoader = ({
+	isLoading = false,
+	isEmpty = false,
+	emptyMessage = "No transactions found",
+}: Props) => {
+	if (isLoading) {
+		return (
+			<div className="flex items-center justify-center p-6">
+				<Loader className="h-6 w-6 animate-spin mr-2" />
+				<span className="text-sm text-muted-foreground">Loading...</span>
+			</div>
+		);
+	}
 
-    if (ListEmptyComponent) {
-      return typeof ListEmptyComponent === 'function'
-        ? (ListEmptyComponent as any)()
-        : (ListEmptyComponent as any);
-    }
+	if (isEmpty) {
+		return <EmptyState title={emptyMessage} description="" />;
+	}
 
-    return (
-      <View style={styles.center}>
-        <Text>{emptyMessage}</Text>
-      </View>
-    );
-  };
+	return null;
+};
 
-  return <FlatList {...(rest as FlatListProps<ItemT>)} ListEmptyComponent={EmptyOrLoading} />;
-}
-
-export default FlatListWithEmptyLoader;
-
-const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-});
+export default FlatListEmptyLoader;
