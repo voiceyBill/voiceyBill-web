@@ -1,15 +1,17 @@
 import { Link } from "react-router-dom";
-import { Github } from "lucide-react";
+import { ArrowUpRight, Github } from "lucide-react";
 
 const Footer = () => {
   return (
     <footer className="bg-[var(--app-dark)] text-white py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10">
       <div className="max-w-6xl mx-auto">
-
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 mb-12">
-
           <div className="space-y-4">
-            <div className="flex items-center gap-2.5">
+            <Link
+              to="/"
+              className="flex items-center gap-2.5 hover:opacity-90 transition"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
               <img
                 src="/logo.png"
                 alt="VoiceyBill"
@@ -18,15 +20,16 @@ const Footer = () => {
               <span className="font-semibold text-base tracking-tight text-white">
                 VoiceyBill
               </span>
-            </div>
+            </Link>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">
-              Expense tracking with voice input, receipt scanning, and spend analytics.
+              Expense tracking with voice input, receipt scanning, and spend
+              analytics.
             </p>
             <button
               onClick={() =>
                 window.open(
                   "https://github.com/voiceyBill/voiceyBill-web",
-                  "_blank"
+                  "_blank",
                 )
               }
               className="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
@@ -36,7 +39,7 @@ const Footer = () => {
             </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 flex flex-col items-start sm:ml-19">
             <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-white/30">
               Product
             </h4>
@@ -80,22 +83,27 @@ const Footer = () => {
                 <li key={item.label}>
                   <button
                     onClick={() => window.open(item.href, "_blank")}
-                    className="text-sm text-white/50 hover:text-white transition-colors"
+                    className="group inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors cursor-pointer"
                   >
-                    {item.label}
+                    <span className="flex items-center gap-1">
+                      {item.label}
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded bg-white/10 group-hover:bg-white/20 ml-1">
+                        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                      </span>
+                    </span>
                   </button>
                 </li>
               ))}
             </ul>
           </div>
-
         </div>
 
         <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <p className="text-white/30 text-sm">© 2025 VoiceyBill. All rights reserved.</p>
+          <p className="text-white/30 text-sm">
+            © 2026 VoiceyBill. All rights reserved.
+          </p>
           <p className="text-white/30 text-sm">Track smarter. Spend wiser.</p>
         </div>
-
       </div>
     </footer>
   );
