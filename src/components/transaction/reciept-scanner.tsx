@@ -48,6 +48,12 @@ const ReceiptScanner = ({
 
     startProgress(10);
     onLoadingChange(true);
+    console.log("Receipt scan started", {
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+    });
+
     // Simulate file upload and processing
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -66,11 +72,22 @@ const ReceiptScanner = ({
       aiScanReceipt(formData)
         .unwrap()
         .then((res) => {
+          console.log("Receipt scan response", res);
+          const errorMessage =
+            res?.data?.error ||
+            (res?.success === false ? res?.message : undefined);
+
+          if (!res?.data || errorMessage) {
+            toast.error(errorMessage || "Failed to scan receipt");
+            return;
+          }
+
           updateProgress(100);
           onScanComplete(res.data);
           toast.success("Receipt scanned successfully");
         })
         .catch((error) => {
+          console.error("Receipt scan request failed", error);
           toast.error(error.data?.message || "Failed to scan receipt");
         })
         .finally(() => {
