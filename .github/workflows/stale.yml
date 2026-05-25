@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mark stale items
-        uses: actions/stale@v9
+        uses: actions/stale@v10
         with:
           stale-issue-message: >-
             This issue has been marked as stale because it has been inactive for 30 days.
