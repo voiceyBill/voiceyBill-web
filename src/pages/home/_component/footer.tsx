@@ -3,7 +3,7 @@ import { ArrowUpRight, Github } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-[var(--app-dark)] text-white py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+    <footer className="bg-[var(--secondary-dark-color)] text-white py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 mb-12">
           <div className="space-y-4">
@@ -83,14 +83,8 @@ const Footer = () => {
                 <li key={item.label}>
                   <button
                     onClick={() => window.open(item.href, "_blank")}
-                    className="group inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors cursor-pointer"
-                  >
-                    <span className="flex items-center gap-1">
-                      {item.label}
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded bg-white/10 group-hover:bg-white/20 ml-1">
-                        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                      </span>
-                    </span>
+                    className="text-sm text-white/50 hover:text-white transition-colors cursor-pointer"
+                  >  {item.label}
                   </button>
                 </li>
               ))}
