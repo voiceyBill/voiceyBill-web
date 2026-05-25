@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Github } from "lucide-react";
+import {  Github } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -83,10 +83,11 @@ const Footer = () => {
                 <li key={item.label}>
                   <button
                     onClick={() => window.open(item.href, "_blank")}
-                    className="text-sm text-white/50 hover:text-white transition-colors cursor-pointer"
+                    className="group inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors cursor-pointer"
                   >
-                    {" "}
-                    {item.label}
+                    <span className="flex items-center gap-1">
+                      {item.label}
+                    </span>
                   </button>
                 </li>
               ))}
