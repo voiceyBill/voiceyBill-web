@@ -84,7 +84,9 @@ const Footer = () => {
                   <button
                     onClick={() => window.open(item.href, "_blank")}
                     className="text-sm text-white/50 hover:text-white transition-colors cursor-pointer"
-                  >  {item.label}
+                  >
+                    {" "}
+                    {item.label}
                   </button>
                 </li>
               ))}
