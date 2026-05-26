@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { Loader } from "lucide-react";
+import { Loader, Check, Circle } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,16 +19,17 @@ import {
 } from "@/components/ui/form";
 import { useRegisterMutation } from "@/features/auth/authAPI";
 import type { ErrorResponse } from "@/features/auth/authType";
-import { uppercase } from "node_modules/zod/v4/core/regexes.d.cts";
+
 
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string()
-  .min(8, "Password must be at least 8 characters")
-  .regex(/[A-Z]/, "Must contain uppercase letter")
-  .regex(/[0-9]/, "Must contain a number")
-  .regex(/[^A-Za-z0-9]/, "Must contain special character"),
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[a-z]/, "Must contain a lowercase letter")
+    .regex(/[A-Z]/, "Must contain uppercase letter")
+    .regex(/[0-9]/, "Must contain a number")
+    .regex(/[^A-Za-z0-9]/, "Must contain special character"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -35,6 +37,7 @@ type FormValues = z.infer<typeof schema>;
 const SignUpForm = () => {
   const navigate = useNavigate();
   const [register, { isLoading }] = useRegisterMutation();
+  const [shakeCount, setShakeCount] = useState(0);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -71,6 +74,19 @@ const SignUpForm = () => {
           return;
         }
 
+        if (apiError.data?.errorCode === "VALIDATION_ERROR" && apiError.data?.errors) {
+          apiError.data.errors.forEach((err) => {
+            if (err.field === "password" || err.field === "email" || err.field === "name") {
+              form.setError(err.field as keyof FormValues, {
+                type: "server",
+                message: err.message,
+              });
+            }
+          });
+          toast.error("Please fix the validation errors.");
+          return;
+        }
+
         toast.error(apiError.data?.message || "Failed to sign up");
       });
   };
@@ -78,7 +94,9 @@ const SignUpForm = () => {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, () => {
+          setShakeCount((prev) => prev + 1);
+        })}
         className="flex flex-col gap-6"
       >
         <div className="flex flex-col items-center gap-2 text-center">
@@ -123,20 +141,38 @@ const SignUpForm = () => {
                 <FormControl>
                   <PasswordInput placeholder="Min. 8 characters" {...field} />
                 </FormControl>
-                <div className="mt-2 space-y-1 text-xs">
-        {[
-          { label: "At least 8 characters", valid: rules.length },
-          { label: "One uppercase letter", valid: rules.uppercase },
-          { label: "One lowercase letter", valid: rules.lowercase },
-          { label: "One number", valid: rules.number },
-          { label: "One special character", valid: rules.special },
-        ].map((rule) => (
-          <div key={rule.label} className={`flex items-center gap-1 ${rule.valid ? "text-green-500" : "text-muted-foreground"}`}>
-          {rule.valid ? "✓" : "○"}
-        <span>{rule.label}</span>
-      </div>
-  ))}
-</div>
+                <div className="mt-3 p-3 bg-muted/20 border border-border/40 rounded-lg space-y-2">
+                  {[
+                    { label: "At least 8 characters", valid: rules.length },
+                    { label: "One lowercase letter", valid: rules.lowercase },
+                    { label: "One uppercase letter", valid: rules.uppercase },
+                    { label: "One number", valid: rules.number },
+                    { label: "One special character", valid: rules.special },
+                  ].map((rule) => {
+                    const isUnmetAndSubmitted = !rule.valid && shakeCount > 0;
+                    return (
+                      <div
+                        key={`${rule.label}-${rule.valid}-${shakeCount}`}
+                        className={`flex items-center gap-2 text-xs transition-all duration-300 ${
+                          rule.valid
+                            ? "text-emerald-600 dark:text-emerald-400 font-medium translate-x-1"
+                            : isUnmetAndSubmitted
+                            ? "text-destructive animate-shake font-medium"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {rule.valid ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-500 stroke-[3.5px] scale-110 transition-transform duration-300" />
+                        ) : (
+                          <Circle className={`h-3.5 w-3.5 stroke-[2px] transition-colors duration-300 ${
+                            isUnmetAndSubmitted ? "text-destructive/80" : "text-muted-foreground/60"
+                          }`} />
+                        )}
+                        <span>{rule.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
                 
                 <FormMessage />
               </FormItem>

@@ -68,5 +68,9 @@ export interface ErrorResponse {
 	data?: {
 		message?: string;
 		errorCode?: string;
+		errors?: Array<{
+			field: string;
+			message: string;
+		}>;
 	};
 }

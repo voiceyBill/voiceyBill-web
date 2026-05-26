@@ -288,3 +288,14 @@ body {
   animation: voice-pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }
 
+/* ── Shake Animation for Validation Errors ──────────────── */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.35s ease-in-out;
+}
+
