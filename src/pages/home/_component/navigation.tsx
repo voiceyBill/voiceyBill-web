@@ -9,10 +9,7 @@ interface HomeNavigationProps {
   scrollToTop: () => void;
 }
 
-const Navigation = ({
-  scrollToSection,
-  scrollToTop,
-}: HomeNavigationProps) => {
+const Navigation = ({ scrollToSection, scrollToTop }: HomeNavigationProps) => {
   const { user, accessToken } = useTypedSelector((state) => state.auth);
   const isAuthenticated = !!(user && accessToken);
 
@@ -24,16 +21,11 @@ const Navigation = ({
     const controlNavbar = () => {
       const currentScrollY = window.scrollY;
       setIsScrolled(currentScrollY > 10);
-      if (currentScrollY < 10) {
-        setIsVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        setIsVisible(true);
-      }
+      if (currentScrollY < 10) setIsVisible(true);
+      else if (currentScrollY > lastScrollY && currentScrollY > 100) setIsVisible(false);
+      else if (currentScrollY < lastScrollY) setIsVisible(true);
       setLastScrollY(currentScrollY);
     };
-
     window.addEventListener("scroll", controlNavbar);
     return () => window.removeEventListener("scroll", controlNavbar);
   }, [lastScrollY]);
@@ -50,12 +42,13 @@ const Navigation = ({
         isVisible ? "translate-y-0" : "-translate-y-full"
       } ${
         isScrolled
-          ? "bg-background/95 backdrop-blur-md border-b border-[var(--surface-border)]"
+          ? "bg-background/95 backdrop-blur-md border-b border-border"
           : "bg-background/80 backdrop-blur-sm"
       }`}
     >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+
           <div onClick={scrollToTop} className="cursor-pointer">
             <Logo url="/" />
           </div>
@@ -65,7 +58,7 @@ const Navigation = ({
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
               >
                 {link.label}
               </button>
@@ -74,33 +67,21 @@ const Navigation = ({
 
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
-              <Button
-                size="sm"
-                asChild
-                className="bg-foreground text-background hover:bg-foreground/90 px-5"
-              >
+              <Button size="sm" asChild className="bg-primary text-primary-foreground hover:bg-primary/90 px-5 rounded-md font-semibold">
                 <Link to="/overview">Dashboard</Link>
               </Button>
             ) : (
               <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  asChild
-                  className="text-sm font-medium"
-                >
+                <Button variant="ghost" size="sm" asChild className="text-sm font-medium text-muted-foreground hover:text-foreground">
                   <Link to="/sign-in">Sign in</Link>
                 </Button>
-                <Button
-                  size="sm"
-                  asChild
-                  className="bg-foreground text-background hover:bg-foreground/90 px-5"
-                >
+                <Button size="sm" asChild className="bg-primary text-primary-foreground hover:bg-primary/90 px-5 rounded-md font-semibold">
                   <Link to="/sign-up">Get started</Link>
                 </Button>
               </>
             )}
           </div>
+
         </div>
       </div>
     </nav>

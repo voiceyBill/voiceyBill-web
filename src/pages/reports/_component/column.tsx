@@ -4,7 +4,52 @@ import { Clock, RefreshCw } from "lucide-react";
 import { _REPORT_STATUS, ReportStatusType } from "@/constant";
 import { ReportType } from "@/features/report/reportType";
 
-export const reportColumns: ColumnDef<ReportType>[] = [
+type ActionCellProps = {
+  report: ReportType;
+  handleResend: (reportId: string) => void;
+  isLoading: boolean;
+};
+
+const ActionCell = ({ report, handleResend, isLoading }: ActionCellProps) => {
+  const isNoActivity = report.status === _REPORT_STATUS.NO_ACTIVITY;
+
+  return (
+    <div className="flex gap-1">
+      <Button
+        size="sm"
+        aria-label="Resend report"
+        variant="outline"
+        className="font-normal"
+        onClick={() => {
+          handleResend(report._id);
+        }}
+        disabled={isLoading || isNoActivity}
+      >
+        {isLoading ? (
+          <>
+            <RefreshCw className="h-4 w-4 animate-spin mr-1" />
+            loading...
+          </>
+        ) : (
+          <>
+            <RefreshCw className="h-4 w-4" />
+            Resend
+          </>
+        )}
+      </Button>
+    </div>
+  );
+};
+
+type Props = {
+  handleResend: (reportId: string) => void;
+  resendingReportId: string | null;
+};
+
+export const reportColumns = ({
+  handleResend,
+  resendingReportId,
+}: Props): ColumnDef<ReportType>[] => [
   {
     accessorKey: "period",
     header: "Report Period",
@@ -60,21 +105,15 @@ export const reportColumns: ColumnDef<ReportType>[] = [
     id: "actions",
     header: "Actions",
     size: 100,
-    cell: () => (
-      <div className="flex gap-1">
-        <Button size="sm" variant="outline" className="font-normal">
-          <RefreshCw className="h-4 w-4" />
-          Resend
-        </Button>
-        <div></div>
-      </div>
+    cell: ({ row }) => (
+      <ActionCell
+        report={row.original}
+        handleResend={handleResend}
+        isLoading={resendingReportId === row.original._id}
+      />
     ),
   },
 
-  {
-    id: "-",
-    header: "",
-  },
   {
     id: "-",
     header: "",

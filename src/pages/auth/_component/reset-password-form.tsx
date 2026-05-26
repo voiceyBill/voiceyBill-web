@@ -21,7 +21,11 @@ import { useResetPasswordMutation } from "@/features/auth/authAPI";
 const schema = z.object({
   email: z.string().email("Invalid email address"),
   otp: z.string().regex(/^\d{6}$/, "Enter the 6-digit reset code"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string()
+  .min(8, "Password must be at least 8 characters")
+  .regex(/[A-Z]/, "Must contain uppercase letter")
+  .regex(/[0-9]/, "Must contain a number")
+  .regex(/[^A-Za-z0-9]/, "Must contain special character"),
 });
 
 type FormValues = z.infer<typeof schema>;

@@ -8,67 +8,39 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import {
-  PlusIcon,
-  XIcon,
-  FileTextIcon,
-  ScanTextIcon,
-  MicIcon,
-} from "lucide-react";
-import { useState } from "react";
+import { PlusIcon, XIcon, FileTextIcon, ScanTextIcon, MicIcon } from "lucide-react";
 import TransactionForm from "./transaction-form";
 import { cn } from "@/lib/utils";
+import useAddTransactionDrawer from "@/hooks/use-add-transaction-drawer";
 
 type TransactionMode = "voice" | "scan" | "manual";
 
-const AddTransactionDrawer = () => {
-  const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<TransactionMode>("voice");
+const tabs = [
+  { id: "voice" as TransactionMode, label: "Voice", icon: MicIcon },
+  { id: "scan" as TransactionMode, label: "AI Scan", icon: ScanTextIcon },
+  { id: "manual" as TransactionMode, label: "Manual", icon: FileTextIcon },
+];
 
-  const onCloseDrawer = () => {
-    setOpen(false);
-  };
-
-  const tabs = [
-    {
-      id: "voice" as TransactionMode,
-      label: "Voice",
-      icon: MicIcon,
-      description: "Add transaction by voice",
-    },
-    {
-      id: "scan" as TransactionMode,
-      label: "AI Scan",
-      icon: ScanTextIcon,
-      description: "Scan receipt with AI",
-    },
-    {
-      id: "manual" as TransactionMode,
-      label: "Manual",
-      icon: FileTextIcon,
-      description: "Enter transaction details manually",
-    },
-  ];
+const AddTransactionDrawer = ({ hideTrigger = false }: { hideTrigger?: boolean }) => {
+  const { open, mode, setMode, onOpenDrawer, onCloseDrawer } = useAddTransactionDrawer();
 
   return (
-    <Drawer direction="right" open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button className="!cursor-pointer">
-          <PlusIcon className="h-4 w-4" />
-          Add Transaction
-        </Button>
-      </DrawerTrigger>
+    <Drawer direction="right" open={!!open} onOpenChange={(v) => { if (!v) onCloseDrawer(); }}>
+      {!hideTrigger && (
+        <DrawerTrigger asChild>
+          <Button className="!cursor-pointer" onClick={() => onOpenDrawer("voice")}>
+            <PlusIcon className="h-4 w-4" />
+            Add Transaction
+          </Button>
+        </DrawerTrigger>
+      )}
       <DrawerContent className="max-w-md h-full flex flex-col">
         <DrawerHeader className="relative flex-shrink-0">
           <div>
-            <DrawerTitle className="text-xl font-semibold">
-              Add Transaction
-            </DrawerTitle>
-            <DrawerDescription>
-              Choose how you want to add your transaction
-            </DrawerDescription>
+            <DrawerTitle className="text-xl font-semibold">Add Transaction</DrawerTitle>
+            <DrawerDescription>Choose how you want to add your transaction</DrawerDescription>
           </div>
-          <DrawerClose className="absolute top-4 right-4">
+          <DrawerClose className="absolute top-4 right-4" onClick={onCloseDrawer}>
             <XIcon className="h-5 w-5 !cursor-pointer" />
           </DrawerClose>
         </DrawerHeader>
@@ -89,9 +61,7 @@ const AddTransactionDrawer = () => {
                   )}
                 >
                   <Icon className="h-4 w-4 flex-shrink-0" />
-                  <span className="hidden xs:inline sm:inline">
-                    {tab.label}
-                  </span>
+                  <span className="hidden xs:inline sm:inline">{tab.label}</span>
                 </button>
               );
             })}
@@ -99,17 +69,9 @@ const AddTransactionDrawer = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {mode === "manual" && (
-            <TransactionForm onCloseDrawer={onCloseDrawer} mode="manual" />
-          )}
-
-          {mode === "scan" && (
-            <TransactionForm onCloseDrawer={onCloseDrawer} mode="scan" />
-          )}
-
-          {mode === "voice" && (
-            <TransactionForm onCloseDrawer={onCloseDrawer} mode="voice" />
-          )}
+          {mode === "manual" && <TransactionForm onCloseDrawer={onCloseDrawer} mode="manual" />}
+          {mode === "scan" && <TransactionForm onCloseDrawer={onCloseDrawer} mode="scan" />}
+          {mode === "voice" && <TransactionForm onCloseDrawer={onCloseDrawer} mode="voice" />}
         </div>
       </DrawerContent>
     </Drawer>

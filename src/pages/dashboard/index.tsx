@@ -23,11 +23,11 @@ const Dashboard = () => {
         }
       >
         {/* Dashboard Main Section */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-6 gap-8">
-          <div className="lg:col-span-4">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-6 gap-6">
+          <div className="lg:col-span-4 flex flex-col lg:h-[520px]">
             <DashboardDataChart dateRange={dateRange} />
           </div>
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 flex flex-col lg:h-[520px]">
             <ExpensePieChart dateRange={dateRange} />
           </div>
         </div>

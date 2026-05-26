@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu } from "lucide-react";
+import { Menu, Sun, Moon } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { PROTECTED_ROUTES } from "@/routes/common/routePath";
 import { cn } from "@/lib/utils";
@@ -9,10 +9,12 @@ import { Sheet, SheetContent } from "../ui/sheet";
 import { UserNav } from "./user-nav";
 import LogoutDialog from "./logout-dialog";
 import { useTypedSelector } from "@/app/hook";
+import { useTheme } from "@/context/theme-provider";
 
 const Navbar = () => {
   const { pathname } = useLocation();
   const { user } = useTypedSelector((state) => state.auth);
+  const { theme, setTheme } = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
@@ -26,7 +28,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="w-full bg-[var(--secondary-dark-color)] text-white">
+      <header className="sticky top-0 z-50 w-full bg-background/80 dark:bg-background/80 backdrop-blur-lg border-b border-border/40 text-foreground shadow-[0_2px_20px_-8px_rgba(0,0,0,0.05)] transition-all duration-300">
         <div className="w-full flex h-14 max-w-[var(--max-width)] items-center mx-auto px-4 sm:px-6">
           <div className="w-full flex items-center justify-between">
 
@@ -35,26 +37,26 @@ const Navbar = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="inline-flex md:hidden text-white hover:bg-white/10"
+                className="inline-flex md:hidden text-foreground hover:bg-muted/65 border border-transparent hover:border-border/30"
                 onClick={() => setIsOpen(true)}
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              <div className="text-white [&_span]:text-white [&_img]:opacity-95">
+              <div className="text-foreground [&_span]:text-foreground [&_img]:opacity-95">
                 <Logo />
               </div>
             </div>
 
             {/* Center: desktop nav */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-1.5">
               {routes.map((route) => (
                 <Button
                   key={route.href}
                   size="sm"
                   variant="ghost"
                   className={cn(
-                    "font-normal text-white/60 hover:text-white hover:bg-white/10 transition-colors text-[14px]",
-                    pathname === route.href && "text-white bg-white/10"
+                    "font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 text-[13.5px] px-4 py-1.5 rounded-full border border-transparent",
+                    pathname === route.href && "text-primary bg-primary/8 border-primary/20 shadow-sm font-semibold hover:bg-primary/10 hover:text-primary"
                   )}
                   asChild
                 >
@@ -65,19 +67,19 @@ const Navbar = () => {
 
             {/* Mobile nav drawer */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetContent side="left" className="bg-background border-r border-[var(--surface-border)] w-64">
-                <div className="mb-6 pt-2">
+              <SheetContent side="left" className="bg-background border-r border-[var(--surface-border)] w-64 p-5">
+                <div className="mb-8 pt-2">
                   <Logo />
                 </div>
-                <nav className="flex flex-col gap-1">
+                <nav className="flex flex-col gap-1.5">
                   {routes.map((route) => (
                     <Button
                       key={route.href}
                       size="sm"
                       variant="ghost"
                       className={cn(
-                        "w-full justify-start font-normal text-foreground/60 hover:text-foreground hover:bg-[var(--surface-subtle)]",
-                        pathname === route.href && "bg-[var(--surface-subtle)] text-foreground font-medium"
+                        "w-full justify-start font-normal text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl px-4 py-2 border border-transparent transition-all duration-150",
+                        pathname === route.href && "bg-primary/8 text-primary font-semibold border-primary/20"
                       )}
                       asChild
                     >
@@ -90,8 +92,24 @@ const Navbar = () => {
               </SheetContent>
             </Sheet>
 
-            {/* Right: user */}
-            <div className="flex items-center gap-3">
+            {/* Right: user and theme settings */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/65 border border-transparent hover:border-border/30 transition-all duration-200"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                title="Toggle Theme"
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-[17px] w-[17px] text-primary" />
+                ) : (
+                  <Moon className="h-[17px] w-[17px] text-primary" />
+                )}
+              </Button>
+              
+              <div className="h-4 w-px bg-border/60" />
+
               <UserNav
                 userName={user?.name || ""}
                 profilePicture={user?.profilePicture || ""}
@@ -111,3 +129,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

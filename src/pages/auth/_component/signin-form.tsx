@@ -116,18 +116,18 @@ const SignInForm = ({
             Login
           </Button>
         </div>
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
           <Link
             to={AUTH_ROUTES.FORGOT_PASSWORD}
-            className="underline underline-offset-4"
+            className="underline underline-offset-4 shrink-0"
           >
             Forgot password?
           </Link>
-          <span>
+          <span className="text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link
               to={AUTH_ROUTES.SIGN_UP}
-              className="underline underline-offset-4"
+              className="underline underline-offset-4 text-foreground"
             >
               Sign up
             </Link>

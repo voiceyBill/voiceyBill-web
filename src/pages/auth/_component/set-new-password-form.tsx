@@ -19,8 +19,13 @@ import { AUTH_ROUTES } from "@/routes/common/routePath";
 import { useResetPasswordMutation } from "@/features/auth/authAPI";
 
 const schema = z.object({
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string()
+  .min(8, "Password must be at least 8 characters")
+  .regex(/[A-Z]/, "Must contain uppercase letter")
+  .regex(/[0-9]/, "Must contain a number")
+  .regex(/[^A-Za-z0-9]/, "Must contain special character"),
+confirmPassword: z.string()
+  .min(8, "Password must be at least 8 characters"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -84,7 +89,7 @@ const SetNewPasswordForm = () => {
               <FormItem>
                 <FormLabel>New password</FormLabel>
                 <FormControl>
-                  <PasswordInput placeholder="Min. 6 characters" {...field} />
+                  <PasswordInput placeholder="Min. 8 characters" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

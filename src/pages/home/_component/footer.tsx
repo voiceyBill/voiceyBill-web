@@ -4,7 +4,7 @@ import { Github } from "lucide-react";
 const Footer = () => {
   return (
     <footer className="bg-[var(--app-dark)] text-white py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 mb-12">
 
@@ -20,8 +20,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">
-              Expense tracking with voice input, receipt scanning, and AI
-              categorization.
+              Expense tracking with voice input, receipt scanning, and spend analytics.
             </p>
             <button
               onClick={() =>

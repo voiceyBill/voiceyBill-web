@@ -121,7 +121,7 @@ export function DataTable<TData>({
   };
 
   const handleFilterChange = (key: string, value: string) => {
-    const updated = { ...filterValues, [key]: value };
+    const updated = { ...filterValues, [key]: value=== "all" ? "": value };
     setFilterValues(updated);
     onFilterChange?.(updated);
   };
@@ -144,17 +144,20 @@ export function DataTable<TData>({
   return (
     <div className="w-full">
       {/* Top Bar: Search & Filters */}
-      <div className="flex flex-wrap justify-between items-center gap-2 pb-4">
-        <div className="flex items-center gap-2 flex-wrap flex-1">
-          {showSearch && (
-            <Input
-              placeholder={searchPlaceholder}
-              value={searchTerm}
-              disabled={isLoading}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="max-w-sm"
-            />
-          )}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4">
+        {/* Search */}
+        {showSearch && (
+          <Input
+            placeholder={searchPlaceholder}
+            value={searchTerm}
+            disabled={isLoading}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full sm:max-w-sm"
+          />
+        )}
+
+        {/* Filters row — always single row */}
+        <div className="flex items-center gap-2 shrink-0">
           {filters.map(({ key, label, options }) => (
             <Select
               key={key}
@@ -162,13 +165,14 @@ export function DataTable<TData>({
               disabled={isLoading}
               onValueChange={(value) => handleFilterChange(key, value)}
             >
-              <SelectTrigger className="min-w-[160px]">
-                <div className="flex items-center gap-2">
-                  <PlusCircleIcon className="h-4 w-4 opacity-50" />
+              <SelectTrigger className="min-w-[120px] sm:min-w-[150px] flex-1 sm:flex-none">
+                <div className="flex items-center gap-1.5">
+                  <PlusCircleIcon className="h-3.5 w-3.5 opacity-50 shrink-0" />
                   <SelectValue placeholder={label} />
                 </div>
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">{label}</SelectItem>
                 {options.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -185,50 +189,48 @@ export function DataTable<TData>({
               variant="ghost"
               disabled={isLoading || isBulkDeleting}
               onClick={handleClear}
-              className="h-8 px-2"
+              className="h-8 px-2 shrink-0"
             >
               <X className="h-4 w-4 mr-1" />
               Reset
             </Button>
           )}
-        </div>
 
-        {(selection && hasSelections) || isBulkDeleting ? (
-          <Button
-            disabled={isLoading || isBulkDeleting}
-            variant="destructive"
-            size="sm"
-            onClick={handleDelete}
-          >
-            <Trash className="h-4 w-4 mr-1" />
-            Delete ({selectedRows.length})
-            {isBulkDeleting && <Loader className="ml-1 h-4 w-4 animate-spin" />}
-          </Button>
-        ) : null}
+          {((selection && hasSelections) || isBulkDeleting) && (
+            <Button
+              disabled={isLoading || isBulkDeleting}
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              className="shrink-0"
+            >
+              <Trash className="h-4 w-4 mr-1" />
+              Delete ({selectedRows.length})
+              {isBulkDeleting && <Loader className="ml-1 h-4 w-4 animate-spin" />}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Table */}
-      <div className={cn("rounded-md border overflow-x-auto", className)}>
+      <div className={cn("rounded-xl border border-border overflow-x-auto", className)}>
         {isLoading ? (
-          <TableSkeleton columns={6} rows={20} />
+          <TableSkeleton
+            columns={columns.length}
+            rows={data.length > 0 ? data.length : 6}
+            cellHeight={data.length > 0 ? 48.6 : 52.8}
+          />
         ) : (
-          <Table
-            className={cn(
-              table.getRowModel().rows.length === 0 ? "h-[200px]" : ""
-            )}
-          >
-            <TableHeader className="sticky top-0 bg-muted z-10 ">
+          <Table className={cn(table.getRowModel().rows.length === 0 ? "h-[200px]" : "")}>
+            <TableHeader className="sticky top-0 bg-muted/60 backdrop-blur-sm z-10 border-b border-border">
               {table.getHeaderGroups().map((group) => (
-                <TableRow key={group.id}>
+                <TableRow key={group.id} className="hover:bg-transparent border-0">
                   {group.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className="!font-medium !text-[13px]"
+                      className="h-11 text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap"
                     >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      {flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -240,23 +242,21 @@ export function DataTable<TData>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
+                    className="h-[52px] border-b border-border/60 last:border-0 hover:bg-muted/30 transition-colors duration-150"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="!text-[13.3px]">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                      <TableCell
+                        key={cell.id}
+                        className="py-0 h-[52px] align-middle text-[13px] text-foreground whitespace-nowrap"
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="text-center h-24"
-                  >
+                <TableRow className="hover:bg-transparent border-0">
+                  <TableCell colSpan={columns.length} className="h-32 text-center">
                     <EmptyState title="No records found" description="" />
                   </TableCell>
                 </TableRow>

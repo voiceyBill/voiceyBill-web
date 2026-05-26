@@ -16,6 +16,13 @@ type CardStatus = {
   description?: string;
 };
 
+const typeBar: Record<CardType, string> = {
+  balance: "bg-primary",
+  income: "bg-emerald-500",
+  expenses: "bg-rose-500",
+  savings: "bg-amber-500",
+};
+
 interface SummaryCardProps {
   title: string;
   value?: number;
@@ -27,64 +34,23 @@ interface SummaryCardProps {
   cardType: CardType;
 }
 
-const getCardStatus = (
-  value: number,
-  cardType: CardType,
-  expenseRatio?: number
-): CardStatus => {
+const getCardStatus = (value: number, cardType: CardType, expenseRatio?: number): CardStatus => {
   if (cardType === "savings") {
-    if (value === 0) {
-      return { label: "No Savings Record", colorClass: "text-white/40", Icon: TrendingDownIcon };
-    }
-    if (value < 10) {
-      return {
-        label: "Low Savings",
-        colorClass: "text-white/50",
-        Icon: TrendingDownIcon,
-        description: `Only ${value.toFixed(1)}% saved`,
-      };
-    }
-    if (value < 20) {
-      return {
-        label: "Moderate",
-        colorClass: "text-white/60",
-        Icon: TrendingDownIcon,
-        description: `${expenseRatio?.toFixed(0)}% spent`,
-      };
-    }
-    if (expenseRatio && expenseRatio > 75) {
-      return {
-        label: "High Spend",
-        colorClass: "text-white/50",
-        Icon: TrendingDownIcon,
-        description: `${expenseRatio.toFixed(0)}% spent`,
-      };
-    }
-    if (expenseRatio && expenseRatio > 60) {
-      return {
-        label: "Warning: High Spend",
-        colorClass: "text-white/50",
-        Icon: TrendingDownIcon,
-        description: `${expenseRatio.toFixed(0)}% spent`,
-      };
-    }
-    return { label: "Good Savings", colorClass: "text-white/80", Icon: TrendingUpIcon };
+    if (value === 0) return { label: "No Savings Record", colorClass: "text-muted-foreground", Icon: TrendingDownIcon };
+    if (value < 10) return { label: "Low Savings", colorClass: "text-rose-500 dark:text-rose-400", Icon: TrendingDownIcon, description: `${value.toFixed(1)}% saved` };
+    if (value < 20) return { label: "Moderate", colorClass: "text-amber-500 dark:text-amber-400", Icon: TrendingDownIcon, description: `${expenseRatio?.toFixed(0)}% spent` };
+    if (expenseRatio && expenseRatio > 75) return { label: "High Spend", colorClass: "text-rose-500 dark:text-rose-400", Icon: TrendingDownIcon, description: `${expenseRatio.toFixed(0)}% spent` };
+    if (expenseRatio && expenseRatio > 60) return { label: "High Spend", colorClass: "text-amber-500 dark:text-amber-400", Icon: TrendingDownIcon, description: `${expenseRatio.toFixed(0)}% spent` };
+    return { label: "Good Savings", colorClass: "text-emerald-500 dark:text-emerald-400", Icon: TrendingUpIcon };
   }
 
   if (value === 0) {
-    const typeLabel =
-      cardType === "income" ? "Income" : cardType === "expenses" ? "Expenses" : "Balance";
-    return { label: `No ${typeLabel}`, colorClass: "text-white/40", Icon: TrendingDownIcon };
+    const label = cardType === "income" ? "No Income" : cardType === "expenses" ? "No Expenses" : "No Balance";
+    return { label, colorClass: "text-muted-foreground", Icon: TrendingDownIcon };
   }
 
-  if (cardType === "balance" && value < 0) {
-    return {
-      label: "Overdrawn",
-      colorClass: "text-white/50",
-      Icon: TrendingDownIcon,
-      description: "Balance is negative",
-    };
-  }
+  if (cardType === "balance" && value < 0)
+    return { label: "Overdrawn", colorClass: "text-rose-500 dark:text-rose-400", Icon: TrendingDownIcon, description: "Balance is negative" };
 
   return { label: "", colorClass: "", Icon: TrendingDownIcon };
 };
@@ -95,61 +61,51 @@ const getTrendDirection = (value: number, cardType: CardType) => {
 };
 
 const SummaryCard: FC<SummaryCardProps> = ({
-  title,
-  value = 0,
-  dateRange,
-  percentageChange,
-  isPercentageValue,
-  isLoading,
-  expenseRatio,
-  cardType = "balance",
+  title, value = 0, dateRange, percentageChange,
+  isPercentageValue, isLoading, expenseRatio, cardType = "balance",
 }) => {
   const status = getCardStatus(value, cardType, expenseRatio);
-  const showTrend =
-    percentageChange !== undefined &&
-    percentageChange !== null &&
-    cardType !== "savings";
+  const showTrend = percentageChange !== undefined && percentageChange !== null && cardType !== "savings";
+  const trendDirection = showTrend && percentageChange !== 0 ? getTrendDirection(percentageChange, cardType) : null;
+  const isNegativeBalance = cardType === "balance" && value < 0;
 
-  const trendDirection =
-    showTrend && percentageChange !== 0
-      ? getTrendDirection(percentageChange, cardType)
-      : null;
+  const formatCountupValue = (val: number) =>
+    isPercentageValue
+      ? formatPercentage(val, { decimalPlaces: 1 })
+      : formatCurrency(val, { isExpense: cardType === "expenses", showSign: false });
 
   if (isLoading) {
     return (
-      <Card className="border-0 bg-white/5 gap-0">
-        <CardHeader className="flex flex-row items-center justify-between pb-5">
-          <Skeleton className="h-4 w-24 bg-white/20" />
+      <Card className="border border-border bg-card rounded-2xl gap-0 shadow-sm overflow-hidden">
+        <div className={cn("h-[3px] w-full", typeBar[cardType])} />
+        <CardHeader className="pb-4 pt-5 px-3 sm:px-5">
+          <Skeleton className="h-3 w-24" />
         </CardHeader>
-        <CardContent className="space-y-8">
-          <Skeleton className="h-10 w-full bg-white/20" />
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-3 w-12 bg-white/20" />
-            <Skeleton className="h-3 w-16 bg-white/20" />
-          </div>
+        <CardContent className="space-y-4 pb-5 px-3 sm:px-5">
+          <Skeleton className="h-8 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
         </CardContent>
       </Card>
     );
   }
 
-  const formatCountupValue = (val: number) => {
-    return isPercentageValue
-      ? formatPercentage(val, { decimalPlaces: 1 })
-      : formatCurrency(val, { isExpense: cardType === "expenses", showSign: false });
-  };
-
   return (
-    <Card className="border-0 bg-white/5 gap-0">
-      <CardHeader className="flex flex-row items-center justify-between pb-5">
-        <CardTitle className="text-[14px] text-white/60 font-medium">{title}</CardTitle>
+    <Card className="relative overflow-hidden border border-border bg-card shadow-sm hover:shadow-md transition-all duration-200 rounded-2xl gap-0">
+      {/* Colored top accent */}
+      <div className={cn("absolute top-0 inset-x-0 h-[3px]", typeBar[cardType])} />
+
+      <CardHeader className="pb-2 pt-4 sm:pt-5 px-3 sm:px-5">
+        <CardTitle className="text-[10px] sm:text-[11px] text-muted-foreground font-bold uppercase tracking-wide">
+          {title}
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div
-          className={cn(
-            "text-2xl font-bold tracking-tight",
-            cardType === "balance" && value < 0 ? "text-white/50" : "text-white"
-          )}
-        >
+
+      <CardContent className="space-y-2 pb-4 sm:pb-5 px-3 sm:px-5">
+        {/* Main value */}
+        <div className={cn(
+          "text-xl sm:text-2xl md:text-[1.75rem] font-bold tracking-tight metric-numeric",
+          isNegativeBalance ? "text-rose-500 dark:text-rose-400" : "text-foreground"
+        )}>
           <CountUp
             start={0}
             end={value}
@@ -160,61 +116,41 @@ const SummaryCard: FC<SummaryCardProps> = ({
           />
         </div>
 
-        <div className="text-sm mt-1">
+        {/* Status row */}
+        <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap min-h-[16px] text-[10.5px] sm:text-[11.5px]">
           {cardType === "savings" ? (
-            <div className="flex items-center gap-1.5">
-              <status.Icon className={cn("size-3.5", status.colorClass)} />
-              <span className={status.colorClass}>{status.label}</span>
-              {status.description && (
-                <span className="text-white/40 ml-1">• {status.description}</span>
-              )}
-            </div>
+            <>
+              <span className={cn("font-semibold", status.colorClass)}>{status.label}</span>
+              {status.description && <span className="text-muted-foreground">· {status.description}</span>}
+            </>
           ) : dateRange?.value === DateRangeEnum.ALL_TIME ? (
-            <span className="text-white/40">Showing {dateRange?.label}</span>
+            <span className="text-muted-foreground font-medium">{dateRange?.label}</span>
           ) : value === 0 || status.label ? (
-            <div className="flex items-center gap-1.5">
-              <status.Icon className={cn("size-3.5", status.colorClass)} />
-              <span className={status.colorClass}>{status.label}</span>
-              {status.description && (
-                <span className="text-white/40">• {status.description}</span>
-              )}
-              {!status.description && (
-                <span className="text-white/40">• {dateRange?.label}</span>
-              )}
-            </div>
+            <>
+              <span className={cn("font-semibold", status.colorClass)}>{status.label}</span>
+              {status.description
+                ? <span className="text-muted-foreground">· {status.description}</span>
+                : dateRange?.label && <span className="text-muted-foreground">· {dateRange.label}</span>
+              }
+            </>
           ) : showTrend ? (
-            <div className="flex items-center gap-1.5">
-              {percentageChange !== 0 && (
-                <div
-                  className={cn(
-                    "flex items-center gap-0.5",
-                    trendDirection === "positive"
-                      ? "text-white/80"
-                      : "text-white/40"
-                  )}
-                >
-                  {trendDirection === "positive" ? (
-                    <TrendingUpIcon className="size-3" />
-                  ) : (
-                    <TrendingDownIcon className="size-3" />
-                  )}
-                  <span>
-                    {formatPercentage(percentageChange || 0, {
-                      showSign: percentageChange !== 0,
-                      isExpense: cardType === "expenses",
-                      decimalPlaces: 1,
-                    })}
-                  </span>
-                </div>
-              )}
-              {percentageChange === 0 && (
-                <div className="flex items-center gap-0.5 text-white/40">
+            <>
+              {percentageChange !== 0 ? (
+                <span className={cn(
+                  "inline-flex items-center gap-1 font-semibold",
+                  trendDirection === "positive" ? "text-emerald-500 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400"
+                )}>
+                  {trendDirection === "positive" ? <TrendingUpIcon className="size-3" /> : <TrendingDownIcon className="size-3" />}
+                  {formatPercentage(percentageChange || 0, { showSign: true, isExpense: cardType === "expenses", decimalPlaces: 1 })}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 font-semibold text-muted-foreground">
                   <TrendingDownIcon className="size-3" />
-                  <span>{formatPercentage(0, { showSign: false, decimalPlaces: 1 })}</span>
-                </div>
+                  {formatPercentage(0, { showSign: false, decimalPlaces: 1 })}
+                </span>
               )}
-              <span className="text-white/40">• {dateRange?.label}</span>
-            </div>
+              {dateRange?.label && <span className="text-muted-foreground">· {dateRange.label}</span>}
+            </>
           ) : null}
         </div>
       </CardContent>

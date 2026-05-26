@@ -22,10 +22,19 @@ export const reportApi = apiClient.injectEndpoints({
         body: payload,
       }),
     }),
+
+    resendReport: builder.mutation<{message: string}, string>({
+      query: (reportId) => ({
+        url: `/report/resend/${reportId}`,
+        method: "POST",
+      }),
+    }),
+    
   }),
 });
 
 export const {
     useGetAllReportsQuery,
-    useUpdateReportSettingMutation
+    useUpdateReportSettingMutation,
+    useResendReportMutation,
 } = reportApi;
