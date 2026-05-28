@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.1.0...voiceybill-client-v1.1.1) (2026-05-28)
+
+
+### Bug Fixes
+
+* Add change password option in Settings ([#73](https://github.com/voiceyBill/voiceyBill-web/issues/73)) ([25ad4c1](https://github.com/voiceyBill/voiceyBill-web/commit/25ad4c164ebcbee32da0f2d87194baa6bb97559f))
+
 ## [1.1.0](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.0.0...voiceybill-client-v1.1.0) (2026-05-28)
 
 
