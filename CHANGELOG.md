@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.2.0...voiceybill-client-v1.3.0) (2026-06-01)
+
+
+### Features
+
+* Add delete account feature with confirmation and API integration ([360adf5](https://github.com/voiceyBill/voiceyBill-web/commit/360adf50226460cbf56685079b421a99966fa0d7))
+* Add voice input support for budget setting ([9972e4f](https://github.com/voiceyBill/voiceyBill-web/commit/9972e4f57fb2132ddd5dea4b64321e22fb7f091d))
+
+
+### Bug Fixes
+
+* **ui:** Improve footer UI spacing and navigation consistency ([dad2bb4](https://github.com/voiceyBill/voiceyBill-web/commit/dad2bb4ca936ca8f5ade0106047f83e849644838))
+
 ## [1.2.0](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.1.0...voiceybill-client-v1.2.0) (2026-05-29)
 
 
