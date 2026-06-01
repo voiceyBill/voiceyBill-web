@@ -28,4 +28,5 @@ export const PROTECTED_ROUTES = {
   SETTINGS_APPEARANCE: "/settings/appearance",
   SETTINGS_BILLING: "/settings/billing",
   SETTINGS_SECURITY: "/settings/security",
+  SETTINGS_CATEGORIES: "/settings/categories",
 };

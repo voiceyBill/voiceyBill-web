@@ -35,9 +35,9 @@ import VoiceRecorder from "./voice-recorder";
 import {
   _TRANSACTION_FREQUENCY,
   _TRANSACTION_TYPE,
-  CATEGORIES,
   PAYMENT_METHODS,
 } from "@/constant";
+import { useGetCategoriesQuery } from "@/features/category/categoryAPI";
 import { Switch } from "../ui/switch";
 import CurrencyInputField from "../ui/currency-input";
 import { SingleSelector } from "../ui/single-select";
@@ -92,6 +92,12 @@ const TransactionForm = (props: {
   } = props;
 
   const [isScanning, setIsScanning] = useState(false);
+  const { data: categoriesData } = useGetCategoriesQuery();
+  const categoryOptions = (categoriesData?.data ?? []).map((cat) => ({
+    value: cat.name.toLowerCase(),
+    label: cat.name,
+    color: cat.color,
+  }));
 
   const { data, isLoading } = useGetSingleTransactionQuery(
     transactionId || "",
@@ -348,13 +354,13 @@ const TransactionForm = (props: {
                   <FormLabel>Category</FormLabel>
                   <SingleSelector
                     value={
-                      CATEGORIES.find((opt) => opt.value === field.value) ||
-                      field.value
+                      categoryOptions.find((opt) => opt.value === field.value) ||
+                      (field.value
                         ? { value: field.value, label: field.value }
-                        : undefined
+                        : undefined)
                     }
                     onChange={(option) => field.onChange(option.value)}
-                    options={CATEGORIES}
+                    options={categoryOptions}
                     placeholder="Select or type a category"
                     creatable
                     disabled={isScanning}
