@@ -13,12 +13,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAppDispatch, useTypedSelector } from "@/app/hook";
 import { Loader } from "lucide-react";
 import { useUpdateUserMutation } from "@/features/user/userAPI";
 import { updateCredentials } from "@/features/auth/authSlice";
+import { useGetSupportedCurrenciesQuery } from "@/features/currency/currencyAPI";
 
 const accountFormSchema = z.object({
   name: z
@@ -28,6 +36,7 @@ const accountFormSchema = z.object({
     })
     .optional(),
   profilePicture: z.string(),
+  baseCurrency: z.string().optional(),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
@@ -40,18 +49,22 @@ export function AccountForm() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const [updateUserMutation, { isLoading }] = useUpdateUserMutation();
+  const { data: currencyData } = useGetSupportedCurrenciesQuery();
 
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
       name: user?.name || "",
       profilePicture: user?.profilePicture || "",
+      baseCurrency: user?.baseCurrency || "USD",
     },
   });
 
   // Check if there are any changes
   const hasChanges =
-    form.watch("name") !== user?.name || file !== null;
+    form.watch("name") !== user?.name ||
+    form.watch("baseCurrency") !== (user?.baseCurrency || "USD") ||
+    file !== null;
 
   const onSubmit = (values: AccountFormValues) => {
 
@@ -65,6 +78,7 @@ export function AccountForm() {
 
     const formData = new FormData();
     formData.append("name", values.name || "");
+    if (values.baseCurrency) formData.append("baseCurrency", values.baseCurrency);
     if (file) formData.append("profilePicture", file);
 
     updateUserMutation(formData)
@@ -75,6 +89,7 @@ export function AccountForm() {
             user: {
               profilePicture: response.data.profilePicture,
               name: response.data.name,
+              baseCurrency: response.data.baseCurrency,
             },
           })
         );
@@ -143,6 +158,33 @@ export function AccountForm() {
               <FormControl>
                 <Input placeholder="Your name" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="baseCurrency"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Base Currency</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl className="w-full">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {currencyData?.currencies?.map((currency) => (
+                    <SelectItem key={currency.code} value={currency.code}>
+                      {currency.symbol} {currency.code} - {currency.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                All transactions will be converted to this currency.
+              </p>
               <FormMessage />
             </FormItem>
           )}

@@ -95,7 +95,7 @@ const VerifyOtpForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold">Verify your email</h1>
+          <h1 className="font-display font-bold text-2xl sm:text-3xl text-foreground tracking-tight">Verify your email</h1>
           <p className="text-balance text-sm text-muted-foreground">
             Enter the 6-digit code sent to your inbox to activate your account.
           </p>

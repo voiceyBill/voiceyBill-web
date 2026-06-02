@@ -51,46 +51,72 @@ const getCategoryConfig = (cat: string) => {
   if (lower.includes("food") || lower.includes("dining")) {
     return {
       icon: Utensils,
-      colorClass: "bg-violet-50 text-violet-750 dark:bg-violet-950/20 dark:text-violet-400 border-violet-100/60 dark:border-violet-900/20",
-      iconContainer: "bg-violet-100/80 dark:bg-violet-900/40 text-violet-600 dark:text-violet-300"
+      colorClass:
+        "bg-violet-50 text-violet-750 dark:bg-violet-950/20 dark:text-violet-400 border-violet-100/60 dark:border-violet-900/20",
+      iconContainer:
+        "bg-violet-100/80 dark:bg-violet-900/40 text-violet-600 dark:text-violet-300",
     };
   }
   if (lower.includes("shopping") || lower.includes("retail")) {
     return {
       icon: ShoppingBag,
-      colorClass: "bg-amber-50 text-amber-750 dark:bg-amber-950/20 dark:text-amber-400 border-amber-100/60 dark:border-amber-900/20",
-      iconContainer: "bg-amber-100/80 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300"
+      colorClass:
+        "bg-amber-50 text-amber-750 dark:bg-amber-950/20 dark:text-amber-400 border-amber-100/60 dark:border-amber-900/20",
+      iconContainer:
+        "bg-amber-100/80 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300",
     };
   }
-  if (lower.includes("bill") || lower.includes("utilities") || lower.includes("rent")) {
+  if (
+    lower.includes("bill") ||
+    lower.includes("utilities") ||
+    lower.includes("rent")
+  ) {
     return {
       icon: Zap,
-      colorClass: "bg-emerald-50 text-emerald-750 dark:bg-emerald-950/20 dark:text-emerald-400 border-emerald-100/60 dark:border-emerald-900/20",
-      iconContainer: "bg-emerald-100/80 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300"
+      colorClass:
+        "bg-emerald-50 text-emerald-750 dark:bg-emerald-950/20 dark:text-emerald-400 border-emerald-100/60 dark:border-emerald-900/20",
+      iconContainer:
+        "bg-emerald-100/80 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300",
     };
   }
-  if (lower.includes("travel") || lower.includes("transport") || lower.includes("car")) {
+  if (
+    lower.includes("travel") ||
+    lower.includes("transport") ||
+    lower.includes("car")
+  ) {
     return {
       icon: Car,
-      colorClass: "bg-blue-50 text-blue-750 dark:bg-blue-950/20 dark:text-blue-400 border-blue-100/60 dark:border-blue-900/20",
-      iconContainer: "bg-blue-100/80 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300"
+      colorClass:
+        "bg-blue-50 text-blue-750 dark:bg-blue-950/20 dark:text-blue-400 border-blue-100/60 dark:border-blue-900/20",
+      iconContainer:
+        "bg-blue-100/80 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300",
     };
   }
   if (lower.includes("health") || lower.includes("medical")) {
     return {
       icon: HeartPulse,
-      colorClass: "bg-rose-50 text-rose-750 dark:bg-rose-950/20 dark:text-rose-400 border-rose-100/60 dark:border-rose-900/20",
-      iconContainer: "bg-rose-100/80 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300"
+      colorClass:
+        "bg-rose-50 text-rose-750 dark:bg-rose-950/20 dark:text-rose-400 border-rose-100/60 dark:border-rose-900/20",
+      iconContainer:
+        "bg-rose-100/80 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300",
     };
   }
   return {
     icon: Tag,
-    colorClass: "bg-zinc-50 text-zinc-700 dark:bg-zinc-800/40 dark:text-zinc-350 border-zinc-150/80 dark:border-zinc-800/30",
-    iconContainer: "bg-zinc-100/80 dark:bg-zinc-700/40 text-zinc-500 dark:text-zinc-400"
+    colorClass:
+      "bg-zinc-50 text-zinc-700 dark:bg-zinc-800/40 dark:text-zinc-350 border-zinc-150/80 dark:border-zinc-800/30",
+    iconContainer:
+      "bg-zinc-100/80 dark:bg-zinc-700/40 text-zinc-500 dark:text-zinc-400",
   };
 };
 
-const SortHeader = ({ label, column }: { label: string; column: import("@tanstack/react-table").Column<TransactionType> }) => (
+const SortHeader = ({
+  label,
+  column,
+}: {
+  label: string;
+  column: import("@tanstack/react-table").Column<TransactionType>;
+}) => (
   <button
     className="flex items-center gap-1 text-left font-bold uppercase tracking-wider hover:text-foreground transition-colors"
     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -139,8 +165,12 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
       const config = getCategoryConfig(category);
       const Icon = config.icon;
       return (
-        <span className={`inline-flex items-center gap-1.5 pl-1.5 pr-2.5 py-0.5 rounded-full text-[12px] font-medium border ${config.colorClass} capitalize`}>
-          <span className={`flex items-center justify-center h-4.5 w-4.5 rounded-full ${config.iconContainer}`}>
+        <span
+          className={`inline-flex items-center gap-1.5 pl-1.5 pr-2.5 py-0.5 rounded-full text-[12px] font-medium border ${config.colorClass} capitalize`}
+        >
+          <span
+            className={`flex items-center justify-center h-4.5 w-4.5 rounded-full ${config.iconContainer}`}
+          >
             <Icon className="h-2.5 w-2.5" />
           </span>
           {category}
@@ -163,7 +193,9 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
                 : "bg-zinc-500/8 text-muted-foreground border-zinc-500/20 dark:bg-zinc-500/10 dark:text-zinc-400 dark:border-zinc-500/15"
             }`}
           >
-            <span className={`h-1.5 w-1.5 rounded-full ${isIncome ? "bg-emerald-500 dark:bg-brand-green-light animate-pulse" : "bg-zinc-400 dark:bg-zinc-500"}`} />
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${isIncome ? "bg-emerald-500 dark:bg-brand-green-light animate-pulse" : "bg-zinc-400 dark:bg-zinc-500"}`}
+            />
             {type}
           </span>
         </div>
@@ -180,24 +212,53 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
       const amount = parseFloat(row.getValue("amount"));
       const type = row.getValue("type");
       const isIncome = type === _TRANSACTION_TYPE.INCOME;
+      const originalAmount = row.original.originalAmount;
+      const originalCurrency = row.original.originalCurrency;
+      const baseCurrencyAtTime = row.original.baseCurrencyAtTime;
+      const exchangeRate = row.original.exchangeRate;
+      const rateSource = row.original.rateSource;
 
       return (
-        <div
-          className={`font-semibold metric-numeric text-[13px] tracking-tight ${
-            isIncome
-              ? "text-emerald-600 dark:text-brand-green-light font-bold"
-              : "text-foreground font-medium"
-          }`}
-        >
-          <span className="mr-0.5 opacity-80">{isIncome ? "+" : "-"}</span>
-          {formatCurrency(amount)}
+        <div>
+          <div
+            className={`font-semibold metric-numeric text-[13px] tracking-tight ${
+              isIncome
+                ? "text-emerald-600 dark:text-brand-green-light font-bold"
+                : "text-foreground font-medium"
+            }`}
+          >
+            <span className="mr-0.5 opacity-80">{isIncome ? "+" : "-"}</span>
+            {formatCurrency(amount, {
+              currency: baseCurrencyAtTime || undefined,
+            })}
+          </div>
+          {originalCurrency && originalAmount != null && (
+            <div
+              className="text-[11px] text-muted-foreground/70 metric-numeric"
+              title={`Rate: ${exchangeRate ?? "N/A"}${rateSource === "cached" ? " (cached)" : ""}`}
+            >
+              ({formatCurrency(originalAmount, { currency: originalCurrency })})
+              {rateSource === "cached" && (
+                <span
+                  className="ml-0.5 text-amber-500"
+                  title="Used cached exchange rate"
+                  aria-label="Used cached exchange rate"
+                  role="img"
+                >
+                  !
+                </span>
+              )}
+            </div>
+          )}
         </div>
       );
     },
   },
   {
     accessorKey: "date",
-    header: ({ column }) => <SortHeader label="Transaction Date" column={column} />,
+    header: ({ column }) => (
+      <SortHeader label="Transaction Date" column={column} />
+    ),
     cell: ({ row }) => format(row.original.date, "MMM dd, yyyy"),
   },
   {

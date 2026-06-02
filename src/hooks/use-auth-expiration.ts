@@ -10,7 +10,7 @@ const useAuthExpiration = () => {
 
   useEffect(() => {
     const handleLogout = () => {
-      console.log("Token expired, logging out...");
+      
       dispatch(logout());
     };
 
@@ -18,7 +18,7 @@ const useAuthExpiration = () => {
       try {
         const { accessToken, expiresAt } = await refreshToken({}).unwrap();
         dispatch(updateCredentials({ accessToken, expiresAt }));
-        console.log("Token refreshed successfully");
+        
       } catch (error) {
         console.error("Token refresh failed, logging out...", error);
         handleLogout();

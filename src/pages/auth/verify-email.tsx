@@ -11,7 +11,7 @@ const VerifyEmail = () => {
   ];
 
   return (
-    <div className="min-h-svh grid lg:grid-cols-2">
+    <div className="min-h-svh grid lg:grid-cols-2 bg-background text-foreground">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-start">
           <Logo url="/" />
@@ -23,18 +23,20 @@ const VerifyEmail = () => {
         </div>
       </div>
 
-      <div className="hidden lg:flex flex-col justify-between bg-[var(--app-dark)] text-white p-12">
+      <div className="hidden lg:flex flex-col justify-between bg-card text-card-foreground p-12">
         <div />
         <div className="space-y-8 max-w-md">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/10 text-white/80">
-              <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
               Email verification
             </div>
-            <h2 className="text-3xl font-bold leading-snug">
-              Activate your <span className="text-white">VoiceyBill</span> account
+
+            <h2 className="text-3xl font-bold leading-snug text-foreground">
+              Activate your <span className="text-primary">VoiceyBill</span> account
             </h2>
-            <p className="text-white/60 leading-relaxed">
+
+            <p className="text-muted-foreground leading-relaxed">
               We send a one-time code to verify your email before you can sign in.
             </p>
           </div>
@@ -42,13 +44,14 @@ const VerifyEmail = () => {
           <ul className="space-y-3">
             {highlights.map((item) => (
               <li key={item} className="flex items-center gap-3">
-                <CheckCircle className="w-4 h-4 flex-shrink-0 text-white/60" />
-                <span className="text-sm text-white/80">{item}</span>
+                <CheckCircle className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+                <span className="text-sm text-foreground">{item}</span>
               </li>
             ))}
           </ul>
         </div>
-        <p className="text-white/30 text-sm">© 2025 VoiceyBill</p>
+
+        <p className="text-muted-foreground text-sm">© 2025 VoiceyBill</p>
       </div>
     </div>
   );

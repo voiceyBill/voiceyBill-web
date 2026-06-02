@@ -10,6 +10,7 @@ import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import Transactions from "@/pages/transactions";
 import Reports from "@/pages/reports";
+import Budget from "@/pages/budget";
 import Settings from "@/pages/settings";
 import Account from "@/pages/settings/account";
 import Appearance from "@/pages/settings/appearance";
@@ -35,6 +36,7 @@ export const protectedRoutePaths = [
   { path: PROTECTED_ROUTES.OVERVIEW, element: <Dashboard /> },
   { path: PROTECTED_ROUTES.TRANSACTIONS, element: <Transactions /> },
   { path: PROTECTED_ROUTES.REPORTS, element: <Reports /> },
+  { path: PROTECTED_ROUTES.BUDGET, element: <Budget /> },
   {
     path: PROTECTED_ROUTES.SETTINGS,
     element: <Settings />,

@@ -19,8 +19,13 @@ export function formatCurrency(
   } = options;
 
   if (!amount || isNaN(amount)) {
-    return compact ? "$0" : "$0.00";
-  }
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: compact ? 0 : 2,
+    maximumFractionDigits: compact ? 0 : 2,
+  }).format(0);
+}
 
   const absAmount = Math.abs(amount);
   let formattedAmount: string;
@@ -33,7 +38,7 @@ export function formatCurrency(
     } else if (absAmount >= 1_000) {
       formattedAmount = `${(absAmount / 1_000).toFixed(1)}K`;
     } else {
-      formattedAmount = absAmount.toFixed(0);
+      formattedAmount = absAmount.toFixed(absAmount % 1 === 0 ? 0 : 2);
     }
 
     const symbol = new Intl.NumberFormat(locale, {

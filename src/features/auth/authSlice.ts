@@ -13,6 +13,7 @@ interface User {
   email: string;
   profilePicture: string | null;
   isVerified?: boolean;
+  baseCurrency?: string;
 }
 
 interface ReportSetting {

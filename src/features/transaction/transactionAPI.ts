@@ -17,7 +17,7 @@ export const transactionApi = apiClient.injectEndpoints({
         method: "POST",
         body: body,
       }),
-      invalidatesTags: ["transactions", "analytics"],
+      invalidatesTags: ["transactions", "analytics", "budget"],
     }),
 
     aiScanReceipt: builder.mutation<AIScanReceiptResponse, FormData>({
@@ -76,7 +76,7 @@ export const transactionApi = apiClient.injectEndpoints({
         url: `/transaction/duplicate/${id}`,
         method: "PUT",
       }),
-      invalidatesTags: ["transactions", "analytics"],
+      invalidatesTags: ["transactions", "analytics", "budget"],
     }),
 
     updateTransaction: builder.mutation<void, UpdateTransactionPayload>({
@@ -85,7 +85,7 @@ export const transactionApi = apiClient.injectEndpoints({
         method: "PUT",
         body: transaction,
       }),
-      invalidatesTags: ["transactions", "analytics"],
+      invalidatesTags: ["transactions", "analytics", "budget"],
     }),
 
     bulkImportTransaction: builder.mutation<void, BulkImportTransactionPayload>(
@@ -95,7 +95,7 @@ export const transactionApi = apiClient.injectEndpoints({
           method: "POST",
           body,
         }),
-        invalidatesTags: ["transactions", "analytics"],
+        invalidatesTags: ["transactions", "analytics", "budget"],
       },
     ),
 
@@ -104,7 +104,7 @@ export const transactionApi = apiClient.injectEndpoints({
         url: `/transaction/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["transactions", "analytics"],
+      invalidatesTags: ["transactions", "analytics", "budget"],
     }),
 
     bulkDeleteTransaction: builder.mutation<void, string[]>({
@@ -115,7 +115,7 @@ export const transactionApi = apiClient.injectEndpoints({
           transactionIds,
         },
       }),
-      invalidatesTags: ["transactions", "analytics"],
+      invalidatesTags: ["transactions", "analytics", "budget"],
     }),
   }),
 });

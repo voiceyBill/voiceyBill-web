@@ -19,6 +19,7 @@ export interface CreateTransactionBody {
   isRecurring: boolean;
   recurringInterval?: RecurringIntervalType | null;
   paymentMethod: string;
+  currency?: string;
 }
 
 export interface GetAllTransactionParams {
@@ -35,6 +36,11 @@ export interface TransactionType {
   title: string;
   type: _TransactionType;
   amount: number;
+  originalAmount?: number | null;
+  originalCurrency?: string | null;
+  baseCurrencyAtTime?: string | null;
+  exchangeRate?: number | null;
+  rateSource?: "live" | "cached" | null;
   description: string;
   category: string;
   date: string;
@@ -69,6 +75,7 @@ export interface AIScanReceiptData {
   category: string;
   paymentMethod: string;
   type: "INCOME" | "EXPENSE";
+  currency?: string;
   receiptUrl?: string;
   voiceUrl?: string;
   transcription?: string;

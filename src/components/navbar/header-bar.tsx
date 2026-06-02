@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sun, Moon, Bell, Menu, PanelLeft } from "lucide-react";
+import { Sun, Moon, Menu, PanelLeft } from "lucide-react";
 import { useTypedSelector } from "@/app/hook";
 import { useTheme } from "@/context/theme-provider";
 import { Button } from "../ui/button";
@@ -7,6 +7,7 @@ import { Sheet, SheetContent } from "../ui/sheet";
 import { UserNav } from "./user-nav";
 import Sidebar from "../sidebar";
 import Logo from "../logo/logo";
+import { NotificationDropdown } from "./notification-dropdown";
 
 interface HeaderBarProps {
   onLogoutClick?: () => void;
@@ -71,19 +72,8 @@ export const HeaderBar = ({ onLogoutClick, sidebarCollapsed, onSidebarToggle }: 
           </Button>
 
           {/* Notifications bell — hidden on xs */}
-          <div className="relative hidden sm:block">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 sm:h-9 sm:w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/65 border border-transparent hover:border-border/30 transition-all duration-200"
-              title="Notifications"
-            >
-              <Bell className="h-4 w-4" />
-            </Button>
-            <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green dark:bg-brand-green-light opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-brand-green dark:bg-brand-green-light"></span>
-            </span>
+          <div className="hidden sm:block">
+            <NotificationDropdown />
           </div>
 
           <div className="h-4 w-px bg-zinc-150/60 dark:bg-white/5 hidden sm:block" />
@@ -92,7 +82,7 @@ export const HeaderBar = ({ onLogoutClick, sidebarCollapsed, onSidebarToggle }: 
           <UserNav
             userName={user?.name || ""}
             profilePicture={user?.profilePicture || ""}
-            onLogout={onLogoutClick || (() => {})}
+            onLogout={onLogoutClick || (() => { })}
           />
         </div>
       </header>

@@ -8,6 +8,7 @@ import {
   LogOut,
   Mic,
   Sparkles,
+  Wallet,
 } from "lucide-react";
 import { PROTECTED_ROUTES } from "@/routes/common/routePath";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ const Sidebar = ({ className, onLinkClick, collapsed = false }: SidebarProps) =>
   const routes = [
     { href: PROTECTED_ROUTES.OVERVIEW, label: "Overview", Icon: LayoutDashboard },
     { href: PROTECTED_ROUTES.TRANSACTIONS, label: "Transactions", Icon: ArrowUpDown },
+    { href: PROTECTED_ROUTES.BUDGET, label: "Budget", Icon: Wallet },
     { href: PROTECTED_ROUTES.REPORTS, label: "Reports", Icon: BarChart3 },
     { href: PROTECTED_ROUTES.SETTINGS, label: "Settings", Icon: Settings },
   ];

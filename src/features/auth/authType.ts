@@ -4,6 +4,7 @@ export interface AuthUser {
 	email: string;
 	profilePicture?: string | null;
 	isVerified?: boolean;
+	baseCurrency?: string;
 }
 
 export interface AuthReportSetting {

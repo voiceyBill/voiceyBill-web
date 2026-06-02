@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatPercentage } from "@/lib/format-percentage";
 import { EmptyState } from "@/components/empty-state";
 import { useExpensePieChartBreakdownQuery } from "@/features/analytics/analyticsAPI";
+import { useTypedSelector } from "@/app/hook";
 
 const COLORS = [
   "#8b5cf6", "#ec4899", "#3b82f6", "#10b981",
@@ -40,6 +41,8 @@ const getCategoryIcon = (name: string): LucideIcon => {
 const chartConfig = { amount: { label: "Amount" } } satisfies ChartConfig;
 
 const ExpensePieChart = ({ dateRange }: { dateRange?: DateRangeType }) => {
+  const { user } = useTypedSelector((state) => state.auth);
+  const baseCurrency = user?.baseCurrency || "USD";
   const { data, isFetching } = useExpensePieChartBreakdownQuery({ preset: dateRange?.value });
   const categories = data?.data?.breakdown || [];
   const totalSpent = data?.data?.totalSpent || 0;
@@ -90,7 +93,7 @@ const ExpensePieChart = ({ dateRange }: { dateRange?: DateRangeType }) => {
                         return (
                           <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
                             <tspan x={cx} y={cy - 2} className="fill-foreground text-xl font-bold metric-numeric tracking-tight">
-                              {formatCurrency(totalSpent, { compact: true })}
+                              {formatCurrency(totalSpent, { compact: true, currency: baseCurrency })}
                             </tspan>
                             <tspan x={cx} y={cy + 16} className="fill-muted-foreground text-[11px] font-medium">
                               Total Spent
@@ -122,7 +125,7 @@ const ExpensePieChart = ({ dateRange }: { dateRange?: DateRangeType }) => {
                     </span>
                     <div className="flex items-center gap-2 shrink-0">
                       <span className="text-[13px] font-semibold text-foreground metric-numeric">
-                        {formatCurrency(entry.value)}
+                        {formatCurrency(entry.value, { currency: baseCurrency })}
                       </span>
                       <span className="text-[11px] text-muted-foreground">
                         ({formatPercentage(entry.percentage, { decimalPlaces: 0 })})

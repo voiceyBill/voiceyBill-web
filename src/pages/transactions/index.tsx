@@ -8,7 +8,6 @@ import TransactionTable from "@/components/transaction/transaction-table";
 import ImportTransactionModal from "@/components/transaction/import-transaction-modal";
 
 export default function Transactions() {
-
   return (
     <PageLayout
       title="All Transactions"

@@ -5,6 +5,7 @@ export interface User {
     name: string;
     email: string;
     profilePicture: string;
+    baseCurrency?: string;
 }
 export interface UpdateUserResponse {
     data: User

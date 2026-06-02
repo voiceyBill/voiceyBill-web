@@ -1,6 +1,7 @@
 # VoiceyBill — Web Client
 
 React web dashboard for tracking income and expenses with voice input, AI receipt scanning, analytics charts, and scheduled email reports.
+The client supports multi-currency transaction entry and displays converted totals in the user's selected base currency.
 
 ## Tech stack
 
@@ -31,6 +32,7 @@ git --version       # should be 2.x or higher
 ```
 
 **If versions are too old:**
+
 - Download Node.js from https://nodejs.org/ (choose LTS v20+)
 - Restart your terminal and verify again
 
@@ -52,8 +54,8 @@ npm ci
 
 ### Environment variables
 
-| Variable | Description |
-|----------|-------------|
+| Variable       | Description                                                    |
+| -------------- | -------------------------------------------------------------- |
 | `VITE_API_URL` | Base URL of the backend API (e.g. `http://localhost:8000/api`) |
 
 ## Development
@@ -63,6 +65,7 @@ npm run dev       # starts dev server on http://localhost:5173
 ```
 
 You should see:
+
 ```
 VITE v6.x.x  build ready in xxx ms
 
@@ -83,11 +86,20 @@ npm run lint      # ESLint
 
 - **Dashboard** — income/expense summary cards, area chart, recent transactions
 - **Transactions** — full table with search, filters, bulk delete, CSV import, duplicate
+- **Multi-currency** — base-currency setting, transaction currency picker, converted/original amount display
 - **Voice input** — record a voice note and have it parsed into a transaction automatically
 - **AI receipt scanning** — upload a receipt image and extract transaction details via AI
 - **Reports** — view generated reports and schedule recurring email delivery
 - **Analytics** — expense breakdown pie chart and trend data
 - **Settings** — account profile, appearance (light/dark/system theme), billing
+
+### Multi-currency UI
+
+- Account Settings includes a base-currency dropdown loaded from the backend.
+- Transaction forms include a currency picker next to the amount field.
+- Foreign-currency transactions show the converted base amount and original amount.
+- Dashboard summary cards, charts and expense breakdown values use the user's base currency.
+- Voice and receipt flows can prefill the detected currency when the backend returns one.
 
 ## Contributing
 
@@ -101,23 +113,23 @@ The UI is built on a two-layer token system defined in `src/index.css`.
 
 **Semantic tokens** (Radix-style, theme-aware):
 
-| Token | Light | Dark |
-|-------|-------|------|
-| `--background` | `oklch(1 0 0)` | `oklch(0.141 ...)` |
-| `--foreground` | `oklch(0.141 ...)` | `oklch(0.985 0 0)` |
-| `--primary` | near-black | near-white |
-| `--muted` / `--muted-foreground` | subtle fill / dim text | same |
-| `--destructive` | red | brighter red |
+| Token                            | Light                  | Dark               |
+| -------------------------------- | ---------------------- | ------------------ |
+| `--background`                   | `oklch(1 0 0)`         | `oklch(0.141 ...)` |
+| `--foreground`                   | `oklch(0.141 ...)`     | `oklch(0.985 0 0)` |
+| `--primary`                      | near-black             | near-white         |
+| `--muted` / `--muted-foreground` | subtle fill / dim text | same               |
+| `--destructive`                  | red                    | brighter red       |
 
 **Brand tokens** (fixed, theme-independent):
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--brand-green` | `rgb(22, 97, 20)` | Income chart series, accent highlights |
-| `--brand-green-light` | `rgb(159, 255, 89)` | Hover states, badges |
-| `--app-dark` | `rgb(23, 23, 23)` | Navbar, footer — always dark regardless of theme |
-| `--surface-alt` | `rgb(243, 244, 247)` | Page section backgrounds (light) |
-| `--surface-border` | `rgba(23, 23, 23, 0.2)` | Subtle dividers |
+| Token                 | Value                   | Usage                                            |
+| --------------------- | ----------------------- | ------------------------------------------------ |
+| `--brand-green`       | `rgb(22, 97, 20)`       | Income chart series, accent highlights           |
+| `--brand-green-light` | `rgb(159, 255, 89)`     | Hover states, badges                             |
+| `--app-dark`          | `rgb(23, 23, 23)`       | Navbar, footer — always dark regardless of theme |
+| `--surface-alt`       | `rgb(243, 244, 247)`    | Page section backgrounds (light)                 |
+| `--surface-border`    | `rgba(23, 23, 23, 0.2)` | Subtle dividers                                  |
 
 All tokens are consumed via Tailwind's `@theme inline` block, so they are available as utility classes (e.g. `bg-brand-green`, `text-app-dark`, `border-surface-border`).
 
@@ -137,6 +149,7 @@ The web app connects to the backend at the URL you set in `VITE_API_URL`. Make s
 ### Module not found or import errors
 
 1. Clear `node_modules` and reinstall:
+
    ```bash
    rm -rf node_modules
    npm ci
@@ -151,11 +164,13 @@ The web app connects to the backend at the URL you set in `VITE_API_URL`. Make s
 ### Build or lint failures
 
 1. Check TypeScript:
+
    ```bash
    npx tsc --noEmit
    ```
 
 2. Check ESLint:
+
    ```bash
    npm run lint
    ```
@@ -167,6 +182,7 @@ The web app connects to the backend at the URL you set in `VITE_API_URL`. Make s
 If you see "connection refused" or 503 errors:
 
 1. Verify the backend is running:
+
    ```bash
    curl http://localhost:8000/health
    ```

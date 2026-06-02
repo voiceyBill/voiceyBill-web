@@ -268,6 +268,24 @@ body {
   -webkit-mask-image: linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
 }
 
+/* ── Landing page font scope ────────────────────────────── */
+.home-page-wrapper {
+  font-family: 'Inter', sans-serif;
+}
+.font-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* ── Horizontal marquee ────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+  min-width: max-content;
+}
+
 /* ── Pulsing Voice Recording Indicator ─────────────────── */
 @keyframes voice-pulse {
   0% {

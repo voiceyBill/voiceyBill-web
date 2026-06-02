@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import Navigation from "./_component/navigation";
 import HeroSection from "./_component/hero-section";
+import MarqueeSection from "./_component/marquee-section";
 import FeaturesSection from "./_component/features-section";
 import HowItWorksSection from "./_component/how-it-works-section";
 import MobileSection from "./_component/mobile-section";
@@ -31,12 +32,13 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-screen home-page-background">
+    <div className="min-h-screen home-page-background home-page-wrapper">
       <Navigation
         scrollToSection={scrollToSection}
         scrollToTop={scrollToTop}
       />
       <HeroSection />
+      <MarqueeSection />
       <FeaturesSection />
       <HowItWorksSection />
       <MobileSection />

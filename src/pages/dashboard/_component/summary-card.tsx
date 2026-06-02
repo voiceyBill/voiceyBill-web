@@ -7,6 +7,7 @@ import { formatPercentage } from "@/lib/format-percentage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { DateRangeEnum, DateRangeType } from "@/components/date-range-select";
+import { useTypedSelector } from "@/app/hook";
 
 type CardType = "balance" | "income" | "expenses" | "savings";
 type CardStatus = {
@@ -64,6 +65,8 @@ const SummaryCard: FC<SummaryCardProps> = ({
   title, value = 0, dateRange, percentageChange,
   isPercentageValue, isLoading, expenseRatio, cardType = "balance",
 }) => {
+  const { user } = useTypedSelector((state) => state.auth);
+  const baseCurrency = user?.baseCurrency || "USD";
   const status = getCardStatus(value, cardType, expenseRatio);
   const showTrend = percentageChange !== undefined && percentageChange !== null && cardType !== "savings";
   const trendDirection = showTrend && percentageChange !== 0 ? getTrendDirection(percentageChange, cardType) : null;
@@ -72,7 +75,11 @@ const SummaryCard: FC<SummaryCardProps> = ({
   const formatCountupValue = (val: number) =>
     isPercentageValue
       ? formatPercentage(val, { decimalPlaces: 1 })
-      : formatCurrency(val, { isExpense: cardType === "expenses", showSign: false });
+      : formatCurrency(val, {
+          currency: baseCurrency,
+          isExpense: cardType === "expenses",
+          showSign: false,
+        });
 
   if (isLoading) {
     return (

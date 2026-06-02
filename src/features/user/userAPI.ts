@@ -9,6 +9,7 @@ export const userApi = apiClient.injectEndpoints({
         method: "PUT",
         body: formData,
       }),
+      invalidatesTags: ["analytics", "transactions"],
     }),
     changePassword: builder.mutation<ChangePasswordResponse, ChangePasswordRequest>({
       query: (body) => ({
@@ -17,7 +18,25 @@ export const userApi = apiClient.injectEndpoints({
         body,
       }),
     }),
+    sendDeleteAccountOtp: builder.mutation<{ message: string }, void>({
+      query: () => ({
+        url: '/user/account/otp',
+        method: 'POST',
+      }),
+    }),
+    deleteUser: builder.mutation<{ message: string }, { otp: string }>({
+      query: (payload) => ({
+        url: '/user/account',
+        method: 'DELETE',
+        body: payload,
+      }),
+    }),
   }),
 });
 
-export const { useUpdateUserMutation, useChangePasswordMutation } = userApi;
+export const {
+  useUpdateUserMutation,
+  useChangePasswordMutation,
+  useSendDeleteAccountOtpMutation,
+  useDeleteUserMutation,
+} = userApi;

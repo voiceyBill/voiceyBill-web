@@ -23,6 +23,7 @@ const Navbar = () => {
     { href: PROTECTED_ROUTES.OVERVIEW, label: "Overview" },
     { href: PROTECTED_ROUTES.TRANSACTIONS, label: "Transactions" },
     { href: PROTECTED_ROUTES.REPORTS, label: "Reports" },
+    { href: PROTECTED_ROUTES.REPORTS, label: "Budget" },
     { href: PROTECTED_ROUTES.SETTINGS, label: "Settings" },
   ];
 
@@ -107,7 +108,7 @@ const Navbar = () => {
                   <Moon className="h-[17px] w-[17px] text-primary" />
                 )}
               </Button>
-              
+
               <div className="h-4 w-px bg-border/60" />
 
               <UserNav
