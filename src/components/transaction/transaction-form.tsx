@@ -1,6 +1,6 @@
 import * as z from "zod";
 import { useEffect, useState } from "react";
-import { Calendar, Loader } from "lucide-react";
+import { Calendar, Loader, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,14 @@ import { Switch } from "../ui/switch";
 import CurrencyInputField from "../ui/currency-input";
 import { SingleSelector } from "../ui/single-select";
 import { AIScanReceiptData } from "@/features/transaction/transationType";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import CategoryForm from "@/pages/settings/_components/category-form";
+import type { Category } from "@/features/category/categoryType";
 import {
   useCreateTransactionMutation,
   useGetSingleTransactionQuery,
@@ -98,6 +106,7 @@ const TransactionForm = (props: {
   } = props;
 
   const [isScanning, setIsScanning] = useState(false);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const { data: categoriesData } = useGetCategoriesQuery();
   const categoryOptions = (categoriesData?.data ?? []).map((cat) => ({
     value: cat.name.toLowerCase(),
@@ -412,7 +421,18 @@ const TransactionForm = (props: {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Category</FormLabel>
+                    <button
+                      type="button"
+                      disabled={isScanning}
+                      onClick={() => setShowCategoryDialog(true)}
+                      className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-50"
+                    >
+                      <Plus className="h-3 w-3" />
+                      New category
+                    </button>
+                  </div>
                   <SingleSelector
                     value={
                       categoryOptions.find((opt) => opt.value === field.value) ||
@@ -622,6 +642,20 @@ const TransactionForm = (props: {
           )}
         </form>
       </Form>
+
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Category</DialogTitle>
+          </DialogHeader>
+          <CategoryForm
+            onDone={() => setShowCategoryDialog(false)}
+            onCreated={(category: Category) => {
+              form.setValue("category", category.name.toLowerCase());
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

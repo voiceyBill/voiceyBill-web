@@ -21,9 +21,6 @@ import type { Category } from "@/features/category/categoryType";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(50, "Name too long"),
-  color: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Must be a valid hex color"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -34,12 +31,16 @@ const PRESET_COLORS = [
   "#8B5CF6", "#EC4899", "#6B7280", "#0EA5E9",
 ];
 
+const getRandomColor = () =>
+  PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)];
+
 interface Props {
   category?: Category;
   onDone: () => void;
+  onCreated?: (category: Category) => void;
 }
 
-const CategoryForm = ({ category, onDone }: Props) => {
+const CategoryForm = ({ category, onDone, onCreated }: Props) => {
   const isEdit = !!category;
 
   const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
@@ -49,19 +50,24 @@ const CategoryForm = ({ category, onDone }: Props) => {
     resolver: zodResolver(schema),
     defaultValues: {
       name: category?.name ?? "",
-      color: category?.color ?? "#6B7280",
     },
   });
 
   const onSubmit = (values: FormValues) => {
+    const payload = {
+      name: values.name,
+      color: category?.color ?? getRandomColor(),
+    };
+
     const action = isEdit
-      ? updateCategory({ id: category._id, body: values })
-      : createCategory(values);
+      ? updateCategory({ id: category._id, body: payload })
+      : createCategory(payload);
 
     action
       .unwrap()
-      .then(() => {
+      .then((res) => {
         toast.success(`Category ${isEdit ? "updated" : "created"} successfully`);
+        if (!isEdit && onCreated) onCreated(res.data);
         onDone();
       })
       .catch((err) => {
@@ -82,48 +88,6 @@ const CategoryForm = ({ category, onDone }: Props) => {
               <FormLabel>Category Name</FormLabel>
               <FormControl>
                 <Input placeholder="e.g. Freelance Income" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="color"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Color</FormLabel>
-              <FormControl>
-                <div className="space-y-2">
-                  <div className="flex flex-wrap gap-2">
-                    {PRESET_COLORS.map((color) => (
-                      <button
-                        key={color}
-                        type="button"
-                        onClick={() => field.onChange(color)}
-                        className="w-7 h-7 rounded-full border-2 transition-all"
-                        style={{
-                          backgroundColor: color,
-                          borderColor: field.value === color ? "#000" : "transparent",
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      className="w-8 h-8 rounded cursor-pointer border"
-                    />
-                    <Input
-                      {...field}
-                      placeholder="#6B7280"
-                      className="w-32 font-mono text-sm"
-                    />
-                  </div>
-                </div>
               </FormControl>
               <FormMessage />
             </FormItem>

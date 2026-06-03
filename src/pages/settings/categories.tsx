@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader, Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,6 @@ const Categories = () => {
   const { data, isLoading } = useGetCategoriesQuery();
   const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
 
-  const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   const categories = data?.data ?? [];
@@ -29,11 +28,9 @@ const Categories = () => {
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
-    setShowForm(true);
   };
 
   const handleDone = () => {
-    setShowForm(false);
     setEditingCategory(null);
   };
 
@@ -50,21 +47,12 @@ const Categories = () => {
       <div>
         <h3 className="text-lg font-medium">Categories</h3>
         <p className="text-sm text-muted-foreground">
-          Create and manage custom transaction categories.
+          Manage your transaction categories. To add a new category, use the transaction form.
         </p>
       </div>
 
-      {showForm ? (
-        <CategoryForm category={editingCategory ?? undefined} onDone={handleDone} />
-      ) : (
-        <Button
-          size="sm"
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add Category
-        </Button>
+      {editingCategory && (
+        <CategoryForm category={editingCategory} onDone={handleDone} />
       )}
 
       <div className="space-y-2">
