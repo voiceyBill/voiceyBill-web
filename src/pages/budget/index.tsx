@@ -17,6 +17,7 @@ import { addBudgetAlerts } from "@/features/notification/notificationSlice";
 import { getCategoryIcon } from "@/lib/category-icons";
 import DeleteBudgetButton from "./_component/delete-budget-button";
 import SetBudgetDrawer from "./_component/set-budget-drawer";
+import { formatPercentage } from "@/lib/format-percentage";
 
 const getCurrentMonthYear = () => {
   const now = new Date();
@@ -164,7 +165,9 @@ export default function Budget() {
     },
     {
       label: "Usage",
-      value: `${budget?.usagePercentage || 0}%`,
+      value: formatPercentage(budget?.usagePercentage || 0, {
+        decimalPlaces: 1,
+      }),
       progress: budget?.usagePercentage || 0,
       tone: getBudgetTone(budget?.usagePercentage || 0),
     },
