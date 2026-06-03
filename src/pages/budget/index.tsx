@@ -26,6 +26,13 @@ const getCurrentMonthYear = () => {
   };
 };
 
+const getRemainingDaysInMonth = () => {
+  const now = new Date();
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return lastDay.getDate() - now.getDate();
+};
+
+
 const getBudgetMonthOptions = () => {
   const formatter = new Intl.DateTimeFormat("en-US", {
     month: "long",
@@ -85,8 +92,8 @@ function BudgetProgress({
 type BudgetTone = "safe" | "warning" | "critical";
 
 const getBudgetTone = (percentage: number): BudgetTone => {
-  if (percentage > 90) return "critical";
-  if (percentage >= 70) return "warning";
+  if (percentage >= 100) return "critical";
+  if (percentage >= 75) return "warning";
   return "safe";
 };
 
@@ -129,7 +136,7 @@ export default function Budget() {
     year,
   });
 
-  const budget = data?.data;
+  const budget = data?.data ;
 
   // Add budget alerts to notification store
   useEffect(() => {
@@ -163,11 +170,11 @@ export default function Budget() {
       tone: getBudgetTone(budget?.usagePercentage || 0),
     },
     {
-      label: "Usage",
-      value: `${budget?.usagePercentage || 0}%`,
-      progress: budget?.usagePercentage || 0,
-      tone: getBudgetTone(budget?.usagePercentage || 0),
-    },
+  label: "Usage",
+ value: `${(budget?.usagePercentage || 0).toFixed(2)}%`,
+  progress: budget?.usagePercentage || 0,
+  tone: getBudgetTone(budget?.usagePercentage || 0),
+},
   ];
 
   return (
@@ -272,59 +279,94 @@ export default function Budget() {
                 Category Budgets
               </h3>
 
-              <div className="grid gap-4 lg:grid-cols-3">
-                {budget.categories.map((category) => (
-                  <Card
-                    key={category.name}
-                    className={
-                      category.exceeded
-                        ? "gap-0 overflow-hidden rounded-lg border-red-100 py-0 shadow-none"
-                        : "gap-4 rounded-lg py-4 shadow-none"
-                    }
-                  >
-                    {category.exceeded && (
-                      <div className="flex items-center justify-between bg-red-500 px-4 py-3 text-white">
-                        <div className="flex items-center gap-2 font-semibold">
-                          <AlertTriangle className="h-4 w-4" />
-                          <span>Exceeded Limit!</span>
-                        </div>
-                        <span className="text-xs font-medium">Exceeded</span>
-                      </div>
-                    )}
-                    <CardContent
-                      className={
-                        category.exceeded
-                          ? "space-y-3 px-4 py-4"
-                          : "space-y-3 px-5"
-                      }
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          {(() => {
-                            const Icon = getCategoryIcon(category.name);
-                            return <Icon className="h-4 w-4 text-muted-foreground" />;
-                          })()}
-                          <p className="font-semibold text-foreground">
-                            {getCategoryLabel(category.name)}
-                          </p>
-                        </div>
-                        <div className="text-sm font-medium text-foreground">
-                          <p>Limit: {formatCurrency(category.limit)}</p>
-                          <p>
-                            Spent:{" "}
-                            <span className="font-bold">
-                              {formatCurrency(category.spent)} /{" "}
-                              {formatCurrency(category.limit)}
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                      <BudgetProgress
-                        value={category.usagePercentage}
-                        tone={getBudgetTone(category.usagePercentage)}
-                      />
-                    </CardContent>
-                  </Card>
+              <div className="grid gap-4 lg:grid-cols-3 items-start">
+                {[...budget.categories]
+  .sort((a, b) => b.usagePercentage - a.usagePercentage)
+  .map((category) => (
+               <Card
+  key={category.name}
+className={`rounded-lg shadow-none h-full ${
+  category.exceeded ? "border-red-200" : ""
+}`}
+>
+  <CardContent className="px-5 space-y-3">
+
+    {/* Header */}
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        {(() => {
+          const Icon = getCategoryIcon(category.name);
+          return (
+            <Icon className={`h-4 w-4 ${
+              category.usagePercentage >= 100
+                ? "text-red-500"
+                : category.usagePercentage >= 75
+                ? "text-yellow-500"
+                : "text-green-600"
+            }`} />
+          );
+        })()}
+        <p className="text-sm font-semibold text-foreground">
+          {getCategoryLabel(category.name)}
+        </p>
+      </div>
+      {category.usagePercentage >= 100 ? (
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+          Over budget
+        </span>
+      ) : category.usagePercentage >= 75 ? (
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
+          Near limit
+        </span>
+      ) : (
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+          On track
+        </span>
+      )}
+    </div>
+
+    {/* Amount */}
+    <div>
+      <p className="text-lg font-bold text-foreground">
+        {formatCurrency(category.spent)}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        of {formatCurrency(category.limit)}
+      </p>
+    </div>
+
+    {/* Progress Bar + Percentage same line */}
+    <div className="flex items-center gap-3">
+      <div className="flex-1">
+        <BudgetProgress
+          value={category.usagePercentage}
+          tone={getBudgetTone(category.usagePercentage)}
+        />
+      </div>
+      <p className={`text-sm font-bold w-10 text-right ${
+        category.usagePercentage >= 100
+          ? "text-red-500"
+          : category.usagePercentage >= 75
+          ? "text-yellow-500"
+          : "text-green-600"
+      }`}>
+        {Math.round(category.usagePercentage)}%
+      </p>
+    </div>
+
+   <div className="flex justify-end text-xs text-muted-foreground border-t pt-2 mt-1">
+  <span>
+    {category.exceeded
+      ? `${formatCurrency(category.spent - category.limit)} over limit`
+      : `${formatCurrency(category.limit - category.spent)} remaining`
+    }
+  </span>
+</div>
+
+   
+
+  </CardContent>
+</Card>
                 ))}
               </div>
             </section>
