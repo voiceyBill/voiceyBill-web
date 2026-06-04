@@ -20,13 +20,15 @@ import { BudgetSummary } from "@/features/budget/budgetType";
 import { AIScanReceiptData } from "@/features/transaction/transationType";
 import { getCategoryIcon } from "@/lib/category-icons";
 import BudgetVoiceRecorder from "./budget-voice-recorder";
+import { useTypedSelector } from "@/app/hook";
+import { useGetSupportedCurrenciesQuery } from "@/features/currency/currencyAPI";
 
 const budgetFormSchema = z
   .object({
     totalBudget: z.string().refine(
       (value) => !isNaN(Number(value)) && Number(value) > 0,
       {
-        message: "Total budget must be greater than $0",
+        message: "Total budget must be greater than 0",
       }
     ),
     categories: z.record(
@@ -83,6 +85,12 @@ const BudgetForm = ({
 }: BudgetFormProps) => {
   const [upsertBudget, { isLoading }] = useUpsertBudgetMutation();
   const [isVoiceProcessing, setIsVoiceProcessing] = useState(false);
+  const { user } = useTypedSelector((state) => state.auth);
+  const { data: currencyData } = useGetSupportedCurrenciesQuery();
+  const baseCurrency = user?.baseCurrency || "USD";
+  const currencySymbol = currencyData?.currencies?.find(
+    (c) => c.code === baseCurrency
+  )?.symbol ?? "$";
 
   const defaultCategoryValues = useMemo(() => {
     return CATEGORIES.reduce<Record<string, string>>((acc, category) => {
@@ -228,8 +236,8 @@ const BudgetForm = ({
                     {...field}
                     disabled={isVoiceProcessing}
                     onValueChange={(value) => field.onChange(value || "")}
-                    placeholder="$0.00"
-                    prefix="$"
+                    placeholder={`${currencySymbol}0.00`}
+                    prefix={currencySymbol}
                   />
                 </FormControl>
                 <FormMessage />
@@ -268,8 +276,8 @@ const BudgetForm = ({
                             onValueChange={(value) =>
                               field.onChange(value || "")
                             }
-                            placeholder="$0.00"
-                            prefix="$"
+                            placeholder={`${currencySymbol}0.00`}
+                            prefix={currencySymbol}
                           />
                         </FormControl>
                         <FormMessage />
