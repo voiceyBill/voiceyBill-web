@@ -8,10 +8,14 @@ import {
   useGetAllTransactionsQuery,
 } from "@/features/transaction/transactionAPI";
 import { toast } from "sonner";
+import { DateRangeSelect, DateRangeType, DateRangeEnum } from "@/components/date-range-select";
+import { format } from "date-fns";
 
 type FilterType = {
   type?: _TransactionType | undefined;
   recurringStatus?: "RECURRING" | "NON_RECURRING" | undefined;
+  startDate?: string;
+  endDate?: string;
   pageNumber?: number;
   pageSize?: number;
 };
@@ -23,9 +27,29 @@ const TransactionTable = (props: {
   const [filter, setFilter] = useState<FilterType>({
     type: undefined,
     recurringStatus: undefined,
+    startDate: undefined,
+    endDate: undefined,
     pageNumber: 1,
     pageSize: props.pageSize || 10,
   });
+
+  const [dateRange, setDateRange] = useState<DateRangeType>(null);
+
+  const handleDateRangeChange = (range: DateRangeType) => {
+    setDateRange(range);
+    setFilter((prev) => ({
+      ...prev,
+      pageNumber: 1,
+      startDate:
+        range?.value === DateRangeEnum.ALL_TIME || !range?.from
+          ? undefined
+          : format(range.from, "yyyy-MM-dd"),
+      endDate:
+        range?.value === DateRangeEnum.ALL_TIME || !range?.to
+          ? undefined
+          : format(range.to, "yyyy-MM-dd"),
+    }));
+  };
 
   const { debouncedTerm, setSearchTerm } = useDebouncedSearch("", {
     delay: 500,
@@ -38,6 +62,8 @@ const TransactionTable = (props: {
     keyword: debouncedTerm,
     type: filter.type,
     recurringStatus: filter.recurringStatus,
+    startDate: filter.startDate,
+    endDate: filter.endDate,
     pageNumber: filter.pageNumber,
     pageSize: filter.pageSize,
   });
@@ -84,7 +110,16 @@ const TransactionTable = (props: {
   };
 
   return (
-    <DataTable
+    <div className="space-y-3">
+      <div className="flex justify-end">
+        <DateRangeSelect
+          dateRange={dateRange}
+          setDateRange={handleDateRangeChange}
+          defaultRange={DateRangeEnum.ALL_TIME}
+          variant="light"
+        />
+      </div>
+      <DataTable
       data={transactions} //transactions
       columns={transactionColumns}
       searchPlaceholder="Search transactions..."
@@ -116,6 +151,7 @@ const TransactionTable = (props: {
       onFilterChange={(filters) => handleFilterChange(filters)}
       onBulkDelete={handleBulkDelete}
     />
+    </div>
   );
 };
 export default TransactionTable;

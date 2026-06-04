@@ -45,6 +45,8 @@ export const transactionApi = apiClient.injectEndpoints({
           keyword = undefined,
           type = undefined,
           recurringStatus = undefined,
+          startDate = undefined,
+          endDate = undefined,
           pageNumber = 1,
           pageSize = 10,
         } = params;
@@ -56,6 +58,8 @@ export const transactionApi = apiClient.injectEndpoints({
             keyword,
             type,
             recurringStatus,
+            startDate,
+            endDate,
             pageNumber,
             pageSize,
           },
