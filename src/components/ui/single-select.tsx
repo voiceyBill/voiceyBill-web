@@ -15,6 +15,7 @@ export interface Option {
   value: string;
   label: string;
   disable?: boolean;
+  flagUrl?: string;
   [key: string]: string | boolean | undefined;
 }
 
@@ -131,7 +132,7 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
       commandProps,
       inputProps,
     }: SingleSelectorProps,
-    ref: React.Ref<SingleSelectorRef>
+    ref: React.Ref<SingleSelectorRef>,
   ) => {
     const inputRef = React.useRef<HTMLInputElement>(null);
     const [open, setOpen] = React.useState(false);
@@ -141,7 +142,7 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
 
     const [selected, setSelected] = React.useState<Option | undefined>(value);
     const [options, setOptions] = React.useState<GroupOption>(
-      transToGroupOption(defaultOptions, groupBy)
+      transToGroupOption(defaultOptions, groupBy),
     );
     const [inputValue, setInputValue] = React.useState("");
     const [commandValue, setCommandValue] = React.useState("");
@@ -156,7 +157,7 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
         focus: () => inputRef?.current?.focus(),
         reset: () => setSelected(undefined),
       }),
-      [selected]
+      [selected],
     );
 
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
@@ -193,7 +194,6 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
         setOptions(fullOptions);
       }
     }, [open, arrayOptions, groupBy, inputValue]);
-
 
     useEffect(() => {
       if (open) {
@@ -284,7 +284,7 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
       Object.values(options).forEach((optGroup) => {
         if (
           optGroup.some(
-            (opt) => opt.value === inputValue || opt.label === inputValue
+            (opt) => opt.value === inputValue || opt.label === inputValue,
           )
         ) {
           exists = true;
@@ -358,7 +358,7 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
 
       if (creatable) {
         return (value: string, search: string) => {
-          return value.toLowerCase().includes(search.toLowerCase()) ? 1 : -1;
+          return value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
         };
       }
       return undefined;
@@ -371,15 +371,15 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
         value={commandValue}
         className={cn(
           "h-auto overflow-visible bg-transparent",
-          commandProps?.className
+          commandProps?.className,
         )}
-        shouldFilter={false}
+        shouldFilter={true}
         filter={commandFilter()}
       >
         <div
           className={cn(
             "flex items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
-            className
+            className,
           )}
           onClick={() => {
             if (disabled) return;
@@ -388,12 +388,11 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
             setOpen(true);
 
             // Clear input value when opening to ensure filtering doesn't restrict options
-            
+
             // Force showing all options
             setShowAllOptions(true);
-            
-            setInputValue("");
 
+            setInputValue("");
 
             // Reset cmdk's internal search state
             setCommandValue(Math.random().toString());
@@ -418,8 +417,15 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
           }}
         >
           {selected ? (
-            <div className="flex flex-1 items-center">
-              {selected.label}
+            <div className="flex flex-1 items-center gap-2">
+              {selected.flagUrl && (
+                <img
+                  src={selected.flagUrl}
+                  alt={selected.value}
+                  className="h-3.5 w-5 rounded-sm object-cover shrink-0"
+                />
+              )}
+              <span>{selected.label}</span>
               {!disabled && (
                 <button
                   type="button"
@@ -473,7 +479,7 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
               placeholder={placeholder}
               className={cn(
                 "flex-1 bg-transparent outline-none placeholder:text-muted-foreground",
-                inputProps?.className
+                inputProps?.className,
               )}
             />
           )}
@@ -515,39 +521,43 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
                               showAllOptions ||
                               option.label
                                 .toLowerCase()
-                                .includes(inputValue.toLowerCase())
+                                .includes(inputValue.toLowerCase()),
                           )
                           .map((option) => {
                             return (
                               <CommandItem
                                 key={option.value}
-                                value={option.label}
+                                value={`${option.value} ${option.label}`}
                                 disabled={option.disable}
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                              }}
-                              onSelect={() => {
-                                // Clear input to ensure no filtering is applied next time
-                                setInputValue("");
-
-                                // Set selected option
-                                setSelected(option);
-                                onChange?.(option);
-
-                                // Close dropdown
-                                setOpen(false);
-                              }}
-                              className={cn(
-                                "cursor-pointer",
-                                option.disable &&
-                                  "cursor-default text-muted-foreground"
-                              )}
-                            >
-                              {option.label}
-                            </CommandItem>
-                          );
-                        })}
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                                onSelect={() => {
+                                  setInputValue("");
+                                  setSelected(option);
+                                  onChange?.(option);
+                                  setOpen(false);
+                                }}
+                                className={cn(
+                                  "cursor-pointer flex items-center gap-2",
+                                  option.disable &&
+                                    "cursor-default text-muted-foreground",
+                                )}
+                              >
+                                {option.flagUrl ? (
+                                  <img
+                                    src={option.flagUrl}
+                                    alt={option.value}
+                                    className="h-3.5 w-5 rounded-sm object-cover shrink-0"
+                                  />
+                                ) : (
+                                  <span className="w-5 shrink-0" />
+                                )}
+                                {option.label}
+                              </CommandItem>
+                            );
+                          })}
                       </>
                     </CommandGroup>
                   ))}
@@ -558,7 +568,7 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
         </div>
       </Command>
     );
-  }
+  },
 );
 
 SingleSelector.displayName = "SingleSelector";
