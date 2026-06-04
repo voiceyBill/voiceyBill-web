@@ -148,7 +148,7 @@ function BudgetCategoryDistribution({
   const chartData = categoryData.filter((category) => category.spent > 0);
 
   return (
-    <Card className="overflow-hidden rounded-lg py-0 shadow-none">
+    <Card className="overflow-hidden rounded-lg py-0 mb-4 shadow-none">
       <CardContent className="p-0">
         <div className="border-b border-border px-5 py-4">
           <h3 className="text-base font-semibold text-foreground">
@@ -301,18 +301,9 @@ function BudgetCategoryDistribution({
                         : "overflow-hidden rounded-lg border border-border bg-background"
                     }
                   >
-                    {category.exceeded && (
-                      <div className="flex items-center justify-between bg-red-500 px-4 py-2.5 text-white">
-                        <div className="flex items-center gap-2 text-sm font-semibold">
-                          <AlertTriangle className="h-4 w-4" />
-                          <span>Exceeded Limit!</span>
-                        </div>
-                        <span className="text-xs font-medium">Exceeded</span>
-                      </div>
-                    )}
                     <div className="flex items-center gap-3 p-4">
                       <div
-                        className="h-10 w-1 shrink-0 rounded-full"
+                        className="h-15 w-1 shrink-0 rounded-full"
                         style={{ backgroundColor: category.fill }}
                       />
                       <div
@@ -320,14 +311,29 @@ function BudgetCategoryDistribution({
                         style={{ backgroundColor: `${category.fill}1F` }}
                       >
                         <Icon
-                          className="h-4 w-4"
+                          className="h-5 w-5"
                           style={{ color: category.fill }}
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-foreground">
-                          {category.label}
-                        </p>
+                        <div className="flex items-center justify-between ">
+                          <p className="truncate text-sm font-semibold text-foreground">
+                            {category.label}
+                          </p>
+                          {category.usagePercentage >= 100 ? (
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+                              Over budget
+                            </span>
+                          ) : category.usagePercentage >= 75 ? (
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
+                              Near limit
+                            </span>
+                          ) : (
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                              On track
+                            </span>
+                          )}
+                        </div>
                         <p className="mt-1 text-xs text-muted-foreground">
                           <span className="font-bold text-foreground text-base">
                             {formatCurrency(category.spent)}
@@ -347,19 +353,6 @@ function BudgetCategoryDistribution({
                         </div>
                       </div>
                       <div className="shrink-0 text-right space-y-1">
-                        {category.usagePercentage >= 100 ? (
-                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700">
-                            Over budget
-                          </span>
-                        ) : category.usagePercentage >= 75 ? (
-                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
-                            Near limit
-                          </span>
-                        ) : (
-                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                            On track
-                          </span>
-                        )}
                         <p
                           className={`text-sm font-bold ${
                             category.usagePercentage >= 100
