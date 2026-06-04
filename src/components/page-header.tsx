@@ -1,16 +1,18 @@
 import { Fragment, ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
   title?: string;
   subtitle?: string;
   rightAction?: ReactNode;
   renderPageHeader?: ReactNode;
+  className?: string;
 }
 
-const PageHeader = ({ title, subtitle, rightAction, renderPageHeader }: PageHeaderProps) => {
+const PageHeader = ({ title, subtitle, rightAction, renderPageHeader, className }: PageHeaderProps) => {
   return (
     <div className="w-full pb-20 pt-4 bg-[var(--secondary-dark-color)] text-white">
-      <div className="w-full max-w-[var(--max-width)] mx-auto px-4 sm:px-6">
+      <div className={cn("w-full max-w-[var(--max-width)] mx-auto px-4 sm:px-6", className)}>
         {renderPageHeader ? (
           <Fragment>{renderPageHeader}</Fragment>
         ) : (

@@ -23,6 +23,8 @@ const Settings = () => {
       title="Settings"
       subtitle="Manage your account settings and set e-mail preferences."
       addMarginTop
+      className="md:mx-3 md:in-data-[sidebar=collapsed]:mx-auto"
+      headerClassName="md:mx-4 md:in-data-[sidebar=collapsed]:mx-auto"
     >
       <Card className="border shadow-none">
         <CardContent>

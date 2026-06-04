@@ -22,6 +22,7 @@ const AppLayout = () => {
 
         {/* Right Side: Header and Main Content Page Area */}
         <div
+          data-sidebar={sidebarCollapsed ? "collapsed" : "expanded"}
           className={cn(
             "flex-1 flex flex-col min-h-screen w-full transition-all duration-300",
             sidebarCollapsed ? "md:pl-16" : "md:pl-64"

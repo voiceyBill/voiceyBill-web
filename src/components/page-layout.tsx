@@ -3,16 +3,17 @@ import PageHeader from "./page-header";
 
 interface PropsType {
   children: React.ReactNode;
-  className?: string
+  className?: string;
+  headerClassName?: string;
   title?: string;
   subtitle?: string;
   rightAction?: React.ReactNode;
   showHeader?: boolean;
   addMarginTop?: boolean;
-  renderPageHeader?: React.ReactNode
+  renderPageHeader?: React.ReactNode;
 }
 
-const PageLayout = ({ children, className,
+const PageLayout = ({ children, className, headerClassName,
   title,
   subtitle,
   rightAction,
@@ -23,11 +24,12 @@ const PageLayout = ({ children, className,
   return (
     <div>
       {showHeader && (
-        <PageHeader 
-          title={title} 
-          subtitle={subtitle} 
-          rightAction={rightAction} 
+        <PageHeader
+          title={title}
+          subtitle={subtitle}
+          rightAction={rightAction}
           renderPageHeader={renderPageHeader}
+          className={headerClassName}
         />
       )}
     <div className={cn("w-full max-w-[var(--max-width)] mx-auto px-4 sm:px-6 pt-8",
