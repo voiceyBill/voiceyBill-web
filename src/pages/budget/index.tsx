@@ -25,20 +25,12 @@ import { addBudgetAlerts } from "@/features/notification/notificationSlice";
 import { getCategoryIcon } from "@/lib/category-icons";
 import DeleteBudgetButton from "./_component/delete-budget-button";
 import SetBudgetDrawer from "./_component/set-budget-drawer";
-import { formatPercentage } from "@/lib/format-percentage";
-
 const getCurrentMonthYear = () => {
   const now = new Date();
   return {
     month: now.getMonth() + 1,
     year: now.getFullYear(),
   };
-};
-
-const getRemainingDaysInMonth = () => {
-  const now = new Date();
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  return lastDay.getDate() - now.getDate();
 };
 
 const getBudgetMonthOptions = () => {
