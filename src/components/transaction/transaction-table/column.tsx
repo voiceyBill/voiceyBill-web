@@ -127,7 +127,7 @@ const SortHeader = ({
 );
 
 export const transactionColumns = (
-  formatCurrency: (amount: number, options?: any) => string,
+  formatCurrency: (amount: number, options?: Record<string, unknown>) => string,
   currencies?: { code: string; symbol: string }[]
 ): ColumnDef<TransactionType>[] => [
     {
@@ -248,7 +248,7 @@ export const transactionColumns = (
                 ({formatCurrencyDirect(originalAmount, {
                   currency: originalCurrency,
                   ...(originalSymbol && { currencySymbol: originalSymbol })
-                } as any)})
+                } as Record<string, unknown>)})
                 {rateSource === "cached" && (
                   <span
                     className="ml-0.5 text-amber-500"
