@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.4.0](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.3.0...voiceybill-client-v1.4.0) (2026-06-03)
+
+
+### Features
+
+* **budget:** Add interactive category-wise pie chart ([#147](https://github.com/voiceyBill/voiceyBill-web/issues/147)) ([c1b93ba](https://github.com/voiceyBill/voiceyBill-web/commit/c1b93ba18ed6ba71a4a5cab549f274064da76716))
+
+
+### Bug Fixes
+
+* **budget:** Format budget usage percentage  ([#140](https://github.com/voiceyBill/voiceyBill-web/issues/140)) ([1b2a985](https://github.com/voiceyBill/voiceyBill-web/commit/1b2a985b3367f02aac32b417418d131b5d89fb4a))
+* **table:** Refine pagination responsiveness for narrow screens, tablets, and mid-screen devices ([#149](https://github.com/voiceyBill/voiceyBill-web/issues/149)) ([5fa3d02](https://github.com/voiceyBill/voiceyBill-web/commit/5fa3d027fed3dea56563cba95335d6071748e7aa))
+* **ui:** Align settings tab spacing ([#150](https://github.com/voiceyBill/voiceyBill-web/issues/150)) ([7b844b6](https://github.com/voiceyBill/voiceyBill-web/commit/7b844b68b16b8774ec07d6f0fbbc647173b24f33))
+
+## [1.3.0](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.2.0...voiceybill-client-v1.3.0) (2026-06-02)
+
+
+### Features
+
+* Add delete account feature with confirmation and API integration ([360adf5](https://github.com/voiceyBill/voiceyBill-web/commit/360adf50226460cbf56685079b421a99966fa0d7))
+* Add voice input support for budget setting ([9972e4f](https://github.com/voiceyBill/voiceyBill-web/commit/9972e4f57fb2132ddd5dea4b64321e22fb7f091d))
+
+
+### Bug Fixes
+
+* **client:** Align date picker weekday headers ([#136](https://github.com/voiceyBill/voiceyBill-web/issues/136)) ([658f0f2](https://github.com/voiceyBill/voiceyBill-web/commit/658f0f2d2b40399d749f5876983d52a466a58547))
+* **ui:** Improve footer UI spacing and navigation consistency ([dad2bb4](https://github.com/voiceyBill/voiceyBill-web/commit/dad2bb4ca936ca8f5ade0106047f83e849644838))
+
 ## [1.2.0](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.1.0...voiceybill-client-v1.2.0) (2026-05-29)
 
 

@@ -1,9 +1,9 @@
+@import url('https://cdn.jsdelivr.net/npm/country-flag-emoji-polyfill@0.1.3/dist/index.css');
 @import "tailwindcss";
 @import "tw-animate-css";
-
 body {
   pointer-events: fill !important;
-  font-family: "Onest", sans-serif !important;
+  font-family: "Twemoji Country Flags", "Onest", sans-serif !important;
 }
 
 .recurring-control button span {
