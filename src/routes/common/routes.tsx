@@ -17,6 +17,8 @@ import Appearance from "@/pages/settings/appearance";
 import Billing from "@/pages/settings/billing";
 import Security from "@/pages/settings/security";
 
+import { AIFinancialCoachPage } from "@/pages/financial-coach/AIFinancialCoachPage";
+
 export const publicRoutePaths = [
   { path: PUBLIC_ROUTES.HOME, element: <Home /> },
 ];
@@ -36,6 +38,10 @@ export const protectedRoutePaths = [
   { path: PROTECTED_ROUTES.TRANSACTIONS, element: <Transactions /> },
   { path: PROTECTED_ROUTES.REPORTS, element: <Reports /> },
   { path: PROTECTED_ROUTES.BUDGET, element: <Budget /> },
+  {
+    path: PROTECTED_ROUTES.FINANCIAL_COACH,
+    element: <AIFinancialCoachPage />,
+  },
   {
     path: PROTECTED_ROUTES.SETTINGS,
     element: <Settings />,

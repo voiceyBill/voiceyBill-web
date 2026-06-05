@@ -25,6 +25,7 @@ export const PROTECTED_ROUTES = {
   TRANSACTIONS: "/transactions",
   REPORTS: "/reports",
   BUDGET: "/budget",
+  FINANCIAL_COACH: "/financial-coach",
   SETTINGS: "/settings",
   SETTINGS_APPEARANCE: "/settings/appearance",
   SETTINGS_BILLING: "/settings/billing",
