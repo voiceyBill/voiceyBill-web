@@ -36,11 +36,11 @@ const getCurrentMonthYear = () => {
   };
 };
 
-const getRemainingDaysInMonth = () => {
-  const now = new Date();
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  return lastDay.getDate() - now.getDate();
-};
+// const getRemainingDaysInMonth = () => {
+//   const now = new Date();
+//   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+//   return lastDay.getDate() - now.getDate();
+// };
 
 const getBudgetMonthOptions = () => {
   const formatter = new Intl.DateTimeFormat("en-US", {
