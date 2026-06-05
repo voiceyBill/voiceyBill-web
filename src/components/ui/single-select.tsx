@@ -136,7 +136,6 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
   ) => {
     const inputRef = React.useRef<HTMLInputElement>(null);
     const [open, setOpen] = React.useState(false);
-    const [onScrollbar, setOnScrollbar] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
     const dropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -160,17 +159,17 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
       [selected],
     );
 
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-        inputRef.current.blur();
-      }
-    };
+   const handleClickOutside = React.useCallback(
+  (event: Event) => {
+    const target = event.target as Node;
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(target) &&
+      !inputRef.current?.contains(target)
+    ) {
+      setOpen(false);
+    }
+  }, [])
 
     const handleUnselect = React.useCallback(() => {
       // Clear selected value
@@ -195,20 +194,16 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
       }
     }, [open, arrayOptions, groupBy, inputValue]);
 
-    useEffect(() => {
-      if (open) {
-        document.addEventListener("mousedown", handleClickOutside);
-        document.addEventListener("touchend", handleClickOutside);
-      } else {
-        document.removeEventListener("mousedown", handleClickOutside);
-        document.removeEventListener("touchend", handleClickOutside);
-      }
 
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-        document.removeEventListener("touchend", handleClickOutside);
-      };
-    }, [open]);
+  useEffect(() => {
+  if (!open) return;
+
+  document.addEventListener("pointerdown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("pointerdown", handleClickOutside);
+  };
+}, [open, handleClickOutside]);
 
     useEffect(() => {
       if (value !== undefined) {
@@ -451,9 +446,6 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
                 inputProps?.onValueChange?.(value);
               }}
               onBlur={(event) => {
-                if (!onScrollbar) {
-                  setOpen(false);
-                }
                 inputProps?.onBlur?.(event);
               }}
               onFocus={(event) => {
@@ -489,12 +481,6 @@ const SingleSelector = React.forwardRef<SingleSelectorRef, SingleSelectorProps>(
           {open && (
             <CommandList
               className="absolute top-1 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in"
-              onMouseLeave={() => {
-                setOnScrollbar(false);
-              }}
-              onMouseEnter={() => {
-                setOnScrollbar(true);
-              }}
               onMouseUp={() => {
                 inputRef?.current?.focus();
               }}
