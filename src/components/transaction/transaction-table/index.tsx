@@ -177,8 +177,7 @@ const TransactionTable = (props: {
         <Button
           onClick={handleExport}
           variant="outline"
-          className="flex items-center gap-2"
-        >
+         className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white" >
           <Download className="w-4 h-4" />
           Export Excel
         </Button>
