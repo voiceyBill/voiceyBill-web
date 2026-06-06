@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.5.0](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.4.0...voiceybill-client-v1.5.0) (2026-06-05)
+
+
+### Features
+
+* **ui:** Added the close functionality for mobile sidebar ([#171](https://github.com/voiceyBill/voiceyBill-web/issues/171)) ([f6d5337](https://github.com/voiceyBill/voiceyBill-web/commit/f6d533783d7cd4867f40654b91e5dd382222e903))
+* **ui:** Enhancement of budget card ([#148](https://github.com/voiceyBill/voiceyBill-web/issues/148)) ([82171ad](https://github.com/voiceyBill/voiceyBill-web/commit/82171adf0e45cd37021561eec29d5c33463a4c69))
+* **web:** Multi-currency support - currency picker, flag display, ac… ([#156](https://github.com/voiceyBill/voiceyBill-web/issues/156)) ([cdae67a](https://github.com/voiceyBill/voiceyBill-web/commit/cdae67a863252a26e291deb6c0db98a84ca2b3c3))
+
+
+### Bug Fixes
+
+* Fixed category dropdown menu stays open when you click outside of it. ([#170](https://github.com/voiceyBill/voiceyBill-web/issues/170)) ([ed00dbf](https://github.com/voiceyBill/voiceyBill-web/commit/ed00dbf98d80b43ba18b3ec26eba2fe583f7cf3e))
+* Resolved the auto login issue ([#159](https://github.com/voiceyBill/voiceyBill-web/issues/159)) ([a722c84](https://github.com/voiceyBill/voiceyBill-web/commit/a722c84ac69e7a3f61cd504455fc8fda115bae06))
+* **ui:** Display dynamic currency symbol in budget section ([#165](https://github.com/voiceyBill/voiceyBill-web/issues/165)) ([3c7e2c6](https://github.com/voiceyBill/voiceyBill-web/commit/3c7e2c6d48acdf2939fe6ef4b2c0d9e8ca391b8e))
+
 ## [1.4.0](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.3.0...voiceybill-client-v1.4.0) (2026-06-03)
 
 
