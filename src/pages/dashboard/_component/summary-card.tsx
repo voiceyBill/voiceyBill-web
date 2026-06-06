@@ -2,12 +2,11 @@ import { FC } from "react";
 import CountUp from "react-countup";
 import { TrendingDownIcon, TrendingUpIcon, LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency } from "@/lib/format-currency";
 import { formatPercentage } from "@/lib/format-percentage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { DateRangeEnum, DateRangeType } from "@/components/date-range-select";
-import { useTypedSelector } from "@/app/hook";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 
 type CardType = "balance" | "income" | "expenses" | "savings";
 type CardStatus = {
@@ -65,8 +64,7 @@ const SummaryCard: FC<SummaryCardProps> = ({
   title, value = 0, dateRange, percentageChange,
   isPercentageValue, isLoading, expenseRatio, cardType = "balance",
 }) => {
-  const { user } = useTypedSelector((state) => state.auth);
-  const baseCurrency = user?.baseCurrency || "USD";
+  const formatCurrency = useFormatCurrency();
   const status = getCardStatus(value, cardType, expenseRatio);
   const showTrend = percentageChange !== undefined && percentageChange !== null && cardType !== "savings";
   const trendDirection = showTrend && percentageChange !== 0 ? getTrendDirection(percentageChange, cardType) : null;
@@ -76,10 +74,9 @@ const SummaryCard: FC<SummaryCardProps> = ({
     isPercentageValue
       ? formatPercentage(val, { decimalPlaces: 1 })
       : formatCurrency(val, {
-          currency: baseCurrency,
-          isExpense: cardType === "expenses",
-          showSign: false,
-        });
+        isExpense: cardType === "expenses",
+        showSign: false,
+      });
 
   if (isLoading) {
     return (

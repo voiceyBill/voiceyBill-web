@@ -3,19 +3,17 @@ import { transactionColumns } from "./column";
 import { _TRANSACTION_TYPE, _TransactionType } from "@/constant";
 import { useState } from "react";
 import useDebouncedSearch from "@/hooks/use-debounce-search";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   useBulkDeleteTransactionMutation,
   useGetAllTransactionsQuery,
 } from "@/features/transaction/transactionAPI";
 import { toast } from "sonner";
-import { DateRangeSelect, DateRangeType, DateRangeEnum } from "@/components/date-range-select";
-import { format } from "date-fns";
+import { useGetSupportedCurrenciesQuery } from "@/features/currency/currencyAPI";
 
 type FilterType = {
   type?: _TransactionType | undefined;
   recurringStatus?: "RECURRING" | "NON_RECURRING" | undefined;
-  startDate?: string;
-  endDate?: string;
   pageNumber?: number;
   pageSize?: number;
 };
@@ -24,32 +22,14 @@ const TransactionTable = (props: {
   pageSize?: number;
   isShowPagination?: boolean;
 }) => {
+  const formatCurrency = useFormatCurrency();
+  const { data: currencyData } = useGetSupportedCurrenciesQuery();
   const [filter, setFilter] = useState<FilterType>({
     type: undefined,
     recurringStatus: undefined,
-    startDate: undefined,
-    endDate: undefined,
     pageNumber: 1,
     pageSize: props.pageSize || 10,
   });
-
-  const [dateRange, setDateRange] = useState<DateRangeType>(null);
-
-  const handleDateRangeChange = (range: DateRangeType) => {
-    setDateRange(range);
-    setFilter((prev) => ({
-      ...prev,
-      pageNumber: 1,
-      startDate:
-        range?.value === DateRangeEnum.ALL_TIME || !range?.from
-          ? undefined
-          : format(range.from, "yyyy-MM-dd"),
-      endDate:
-        range?.value === DateRangeEnum.ALL_TIME || !range?.to
-          ? undefined
-          : format(range.to, "yyyy-MM-dd"),
-    }));
-  };
 
   const { debouncedTerm, setSearchTerm } = useDebouncedSearch("", {
     delay: 500,
@@ -62,8 +42,6 @@ const TransactionTable = (props: {
     keyword: debouncedTerm,
     type: filter.type,
     recurringStatus: filter.recurringStatus,
-    startDate: filter.startDate,
-    endDate: filter.endDate,
     pageNumber: filter.pageNumber,
     pageSize: filter.pageSize,
   });
@@ -77,7 +55,7 @@ const TransactionTable = (props: {
   };
 
   const handleSearch = (value: string) => {
-    
+
     setSearchTerm(value);
   };
 
@@ -110,18 +88,9 @@ const TransactionTable = (props: {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex justify-end">
-        <DateRangeSelect
-          dateRange={dateRange}
-          setDateRange={handleDateRangeChange}
-          defaultRange={DateRangeEnum.ALL_TIME}
-          variant="light"
-        />
-      </div>
-      <DataTable
+    <DataTable
       data={transactions} //transactions
-      columns={transactionColumns}
+      columns={transactionColumns(formatCurrency, currencyData?.currencies)}
       searchPlaceholder="Search transactions..."
       isLoading={isFetching}
       isBulkDeleting={isBulkDeleting}
@@ -151,7 +120,6 @@ const TransactionTable = (props: {
       onFilterChange={(filters) => handleFilterChange(filters)}
       onBulkDelete={handleBulkDelete}
     />
-    </div>
   );
 };
 export default TransactionTable;

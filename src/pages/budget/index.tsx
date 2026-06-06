@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import PageLayout from "@/components/page-layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Cell, Label, Pie, PieChart } from "recharts";
@@ -20,11 +20,14 @@ import { AlertTriangle, WalletCards } from "lucide-react";
 import { CATEGORIES } from "@/constant";
 import { useGetBudgetSummaryQuery } from "@/features/budget/budgetAPI";
 import type { BudgetCategorySummary } from "@/features/budget/budgetType";
-import { useAppDispatch } from "@/app/hook";
+import { useAppDispatch, useTypedSelector } from "@/app/hook";
+import { useGetSupportedCurrenciesQuery } from "@/features/currency/currencyAPI";
 import { addBudgetAlerts } from "@/features/notification/notificationSlice";
 import { getCategoryIcon } from "@/lib/category-icons";
 import DeleteBudgetButton from "./_component/delete-budget-button";
 import SetBudgetDrawer from "./_component/set-budget-drawer";
+import { formatPercentage } from "@/lib/format-percentage";
+
 const getCurrentMonthYear = () => {
   const now = new Date();
   return {
@@ -56,12 +59,6 @@ const getBudgetMonthOptions = () => {
     };
   });
 };
-
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
 
 const getCategoryLabel = (name: string) =>
   CATEGORIES.find((category) => category.value === name)?.label || name;
@@ -119,9 +116,11 @@ const getBudgetTone = (percentage: number): BudgetTone => {
 function BudgetCategoryDistribution({
   categories,
   totalSpent,
+  formatCurrency,
 }: {
   categories: BudgetCategorySummary[];
   totalSpent: number;
+  formatCurrency: (amount: number) => string;
 }) {
   const categoryData = useMemo(
     () =>
@@ -346,13 +345,12 @@ function BudgetCategoryDistribution({
                       </div>
                       <div className="shrink-0 text-right space-y-1">
                         <p
-                          className={`text-sm font-bold ${
-                            category.usagePercentage >= 100
+                          className={`text-sm font-bold ${category.usagePercentage >= 100
                               ? "text-red-600"
                               : category.usagePercentage >= 75
                                 ? "text-yellow-500"
                                 : "text-green-600"
-                          }`}
+                            }`}
                         >
                           {Math.round(category.usagePercentage)}%
                         </p>
@@ -390,6 +388,12 @@ function BudgetPageSkeleton() {
 
 export default function Budget() {
   const dispatch = useAppDispatch();
+  const { user } = useTypedSelector((state) => state.auth);
+  const { data: currencyData } = useGetSupportedCurrenciesQuery();
+  const baseCurrency = user?.baseCurrency || "USD";
+  const currencySymbol = currencyData?.currencies?.find(
+    (c) => c.code === baseCurrency
+  )?.symbol ?? "$";
   const currentMonthYear = getCurrentMonthYear();
   const monthOptions = useMemo(() => getBudgetMonthOptions(), []);
   const [selectedMonthValue, setSelectedMonthValue] = useState(
@@ -422,34 +426,45 @@ export default function Budget() {
       );
     }
   }, [budget?.alerts, budget?.hasBudget, dispatch]);
-  const summaryItems = [
-    {
-      label: "Total Budget",
-      value: formatCurrency(budget?.totalBudget || 0),
-      progress: budget?.hasBudget ? 100 : 0,
-      tone: "safe" as const,
-    },
-    {
-      label: "Spent",
-      value: formatCurrency(budget?.spent || 0),
-      progress: budget?.usagePercentage || 0,
-      tone: getBudgetTone(budget?.usagePercentage || 0),
-    },
-    {
-      label: "Remaining",
-      value: formatCurrency(budget?.remaining || 0),
-      progress: budget?.hasBudget
-        ? Math.max(100 - budget.usagePercentage, 0)
-        : 0,
-      tone: getBudgetTone(budget?.usagePercentage || 0),
-    },
-    {
-      label: "Usage",
-      value: `${(budget?.usagePercentage || 0).toFixed(2)}%`,
-      progress: budget?.usagePercentage || 0,
-      tone: getBudgetTone(budget?.usagePercentage || 0),
-    },
-  ];
+
+
+  const formatCurrency = useCallback(
+    (amount: number) =>
+      `${currencySymbol}${new Intl.NumberFormat("en-US").format(amount)}`,
+    [currencySymbol]
+  );
+
+  const summaryItems = useMemo(
+    () => [
+      {
+        label: "Total Budget",
+        value: formatCurrency(budget?.totalBudget || 0),
+        progress: budget?.hasBudget ? 100 : 0,
+        tone: "safe" as const,
+      },
+      {
+        label: "Spent",
+        value: formatCurrency(budget?.spent || 0),
+        progress: budget?.usagePercentage || 0,
+        tone: getBudgetTone(budget?.usagePercentage || 0),
+      },
+      {
+        label: "Remaining",
+        value: formatCurrency(budget?.remaining || 0),
+        progress: budget?.hasBudget ? Math.max(100 - budget.usagePercentage, 0) : 0,
+        tone: getBudgetTone(budget?.usagePercentage || 0),
+      },
+      {
+        label: "Usage",
+        value: formatPercentage(budget?.usagePercentage || 0, {
+          decimalPlaces: 1,
+        }),
+        progress: budget?.usagePercentage || 0,
+        tone: getBudgetTone(budget?.usagePercentage || 0),
+      },
+    ],
+    [budget?.totalBudget, budget?.spent, budget?.remaining, budget?.usagePercentage, budget?.hasBudget, formatCurrency]
+  );
 
   return (
     <PageLayout
@@ -550,6 +565,7 @@ export default function Budget() {
             <BudgetCategoryDistribution
               categories={budget.categories}
               totalSpent={budget.spent}
+              formatCurrency={formatCurrency}
             />
           )}
         </div>

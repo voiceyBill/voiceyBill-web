@@ -15,9 +15,8 @@ import { EmptyState } from "@/components/empty-state";
 import { TrendingUpIcon, TrendingDownIcon } from "lucide-react";
 import { DateRangeType } from "@/components/date-range-select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency } from "@/lib/format-currency";
 import { useChartAnalyticsQuery } from "@/features/analytics/analyticsAPI";
-import { useTypedSelector } from "@/app/hook";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 
 interface PropsType {
   dateRange?: DateRangeType;
@@ -32,8 +31,7 @@ const chartConfig = {
 
 const DashboardDataChart: React.FC<PropsType> = ({ dateRange }) => {
   const isMobile = useIsMobile();
-  const { user } = useTypedSelector((state) => state.auth);
-  const baseCurrency = user?.baseCurrency || "USD";
+  const formatCurrency = useFormatCurrency();
 
   const { data, isFetching } = useChartAnalyticsQuery({ preset: dateRange?.value });
   const chartData = data?.data?.chartData || [];
@@ -111,7 +109,7 @@ const DashboardDataChart: React.FC<PropsType> = ({ dateRange }) => {
                 width={isMobile ? 48 : 58}
                 fontSize={11}
                 tick={{ fill: "var(--muted-foreground)" }}
-                tickFormatter={(v) => formatCurrency(Number(v), { compact: true, currency: baseCurrency })}
+                tickFormatter={(v) => formatCurrency(Number(v), { compact: true })}
               />
               <ChartTooltip
                 cursor={{ stroke: "rgba(148,163,184,0.15)", strokeWidth: 1.5, strokeDasharray: "4 4" }}
@@ -128,7 +126,6 @@ const DashboardDataChart: React.FC<PropsType> = ({ dateRange }) => {
                             showSign: true,
                             compact: false,
                             isExpense,
-                            currency: baseCurrency,
                           })}
                         </span>,
                         isExpense ? "Expenses" : "Income",

@@ -9,6 +9,7 @@ import type {
   ResetPasswordResponse,
   VerifyOtpRequest,
   VerifyOtpResponse,
+  RefreshTokenResponse
 } from "./authType";
 
 export const authApi = apiClient.injectEndpoints({
@@ -63,10 +64,11 @@ export const authApi = apiClient.injectEndpoints({
         method: "POST",
       }),
     }),
-    refresh: builder.mutation({
-      query: () => ({
+    refresh: builder.mutation<RefreshTokenResponse,{refreshToken:string}>({
+      query: (body) => ({
         url: "/auth/refresh-token",
         method: "POST",
+        body
       }),
     }),
   }),

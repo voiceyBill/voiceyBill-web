@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { formatCurrency } from "@/lib/format-currency";
+import { formatCurrency as formatCurrencyDirect } from "@/lib/format-currency";
 import useEditTransactionDrawer from "@/hooks/use-edit-transaction-drawer";
 import { TransactionType } from "@/features/transaction/transationType";
 import { _TRANSACTION_FREQUENCY, _TRANSACTION_TYPE } from "@/constant";
@@ -126,164 +126,175 @@ const SortHeader = ({
   </button>
 );
 
-export const transactionColumns: ColumnDef<TransactionType>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        className="!border-[var(--surface-border)] data-[state=checked]:!bg-foreground !text-background"
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        className="!border-[var(--surface-border)] data-[state=checked]:!bg-foreground !text-background"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => <SortHeader label="Date Created" column={column} />,
-    cell: ({ row }) => format(row.getValue("createdAt"), "MMM dd, yyyy"),
-  },
-  {
-    accessorKey: "title",
-    header: "Title",
-  },
-  {
-    accessorKey: "category",
-    header: ({ column }) => <SortHeader label="Category" column={column} />,
-    cell: ({ row }) => {
-      const category = row.original.category || "General";
-      const config = getCategoryConfig(category);
-      const Icon = config.icon;
-      return (
-        <span
-          className={`inline-flex items-center gap-1.5 pl-1.5 pr-2.5 py-0.5 rounded-full text-[12px] font-medium border ${config.colorClass} capitalize`}
-        >
-          <span
-            className={`flex items-center justify-center h-4.5 w-4.5 rounded-full ${config.iconContainer}`}
-          >
-            <Icon className="h-2.5 w-2.5" />
-          </span>
-          {category}
-        </span>
-      );
+export const transactionColumns = (
+  formatCurrency: (amount: number, options?: Record<string, unknown>) => string,
+  currencies?: { code: string; symbol: string }[]
+): ColumnDef<TransactionType>[] => [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          className="!border-[var(--surface-border)] data-[state=checked]:!bg-foreground !text-background"
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          className="!border-[var(--surface-border)] data-[state=checked]:!bg-foreground !text-background"
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
-  },
-  {
-    accessorKey: "type",
-    header: ({ column }) => <SortHeader label="Type" column={column} />,
-    cell: ({ row }) => {
-      const type = row.getValue("type") as string;
-      const isIncome = type === _TRANSACTION_TYPE.INCOME;
-      return (
-        <div className="capitalize">
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => <SortHeader label="Date Created" column={column} />,
+      cell: ({ row }) => format(row.getValue("createdAt"), "MMM dd, yyyy"),
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
+    },
+    {
+      accessorKey: "category",
+      header: ({ column }) => <SortHeader label="Category" column={column} />,
+      cell: ({ row }) => {
+        const category = row.original.category || "General";
+        const config = getCategoryConfig(category);
+        const Icon = config.icon;
+        return (
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
-              isIncome
-                ? "bg-emerald-500/8 text-emerald-600 border-emerald-500/20 dark:bg-emerald-500/10 dark:text-brand-green-light dark:border-brand-green-light/20"
-                : "bg-zinc-500/8 text-muted-foreground border-zinc-500/20 dark:bg-zinc-500/10 dark:text-zinc-400 dark:border-zinc-500/15"
-            }`}
+            className={`inline-flex items-center gap-1.5 pl-1.5 pr-2.5 py-0.5 rounded-full text-[12px] font-medium border ${config.colorClass} capitalize`}
           >
             <span
-              className={`h-1.5 w-1.5 rounded-full ${isIncome ? "bg-emerald-500 dark:bg-brand-green-light animate-pulse" : "bg-zinc-400 dark:bg-zinc-500"}`}
-            />
-            {type}
+              className={`flex items-center justify-center h-4.5 w-4.5 rounded-full ${config.iconContainer}`}
+            >
+              <Icon className="h-2.5 w-2.5" />
+            </span>
+            {category}
           </span>
-        </div>
-      );
+        );
+      },
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+    {
+      accessorKey: "type",
+      header: ({ column }) => <SortHeader label="Type" column={column} />,
+      cell: ({ row }) => {
+        const type = row.getValue("type") as string;
+        const isIncome = type === _TRANSACTION_TYPE.INCOME;
+        return (
+          <div className="capitalize">
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${isIncome
+                ? "bg-emerald-500/8 text-emerald-600 border-emerald-500/20 dark:bg-emerald-500/10 dark:text-brand-green-light dark:border-brand-green-light/20"
+                : "bg-zinc-500/8 text-muted-foreground border-zinc-500/20 dark:bg-zinc-500/10 dark:text-zinc-400 dark:border-zinc-500/15"
+                }`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${isIncome ? "bg-emerald-500 dark:bg-brand-green-light animate-pulse" : "bg-zinc-400 dark:bg-zinc-500"}`}
+              />
+              {type}
+            </span>
+          </div>
+        );
+      },
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
     },
-  },
-  {
-    accessorKey: "amount",
-    header: "Amount",
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
-      const type = row.getValue("type");
-      const isIncome = type === _TRANSACTION_TYPE.INCOME;
-      const originalAmount = row.original.originalAmount;
-      const originalCurrency = row.original.originalCurrency;
-      const baseCurrencyAtTime = row.original.baseCurrencyAtTime;
-      const exchangeRate = row.original.exchangeRate;
-      const rateSource = row.original.rateSource;
+    {
+      accessorKey: "amount",
+      header: "Amount",
+      cell: ({ row }) => {
+        const amount = parseFloat(row.getValue("amount"));
+        const type = row.getValue("type");
+        const isIncome = type === _TRANSACTION_TYPE.INCOME;
+        const originalAmount = row.original.originalAmount;
+        const originalCurrency = row.original.originalCurrency;
+        const baseCurrencyAtTime = row.original.baseCurrencyAtTime;
+        const exchangeRate = row.original.exchangeRate;
+        const rateSource = row.original.rateSource;
 
-      return (
-        <div>
-          <div
-            className={`font-semibold metric-numeric text-[13px] tracking-tight ${
-              isIncome
+        // Find the actual symbol from currencies array, if available
+        const currencyMatch = currencies?.find(
+          (c) => c.code?.toUpperCase() === originalCurrency?.toUpperCase()
+        );
+        const originalSymbol = currencyMatch?.symbol;
+
+
+        return (
+          <div>
+            <div
+              className={`font-semibold metric-numeric text-[13px] tracking-tight ${isIncome
                 ? "text-emerald-600 dark:text-brand-green-light font-bold"
                 : "text-foreground font-medium"
-            }`}
-          >
-            <span className="mr-0.5 opacity-80">{isIncome ? "+" : "-"}</span>
-            {formatCurrency(amount, {
-              currency: baseCurrencyAtTime || undefined,
-            })}
-          </div>
-          {originalCurrency && originalAmount != null && (
-            <div
-              className="text-[11px] text-muted-foreground/70 metric-numeric"
-              title={`Rate: ${exchangeRate ?? "N/A"}${rateSource === "cached" ? " (cached)" : ""}`}
+                }`}
             >
-              ({formatCurrency(originalAmount, { currency: originalCurrency })})
-              {rateSource === "cached" && (
-                <span
-                  className="ml-0.5 text-amber-500"
-                  title="Used cached exchange rate"
-                  aria-label="Used cached exchange rate"
-                  role="img"
-                >
-                  !
-                </span>
-              )}
+              <span className="mr-0.5 opacity-80">{isIncome ? "+" : "-"}</span>
+              {formatCurrency(amount, {
+                currency: baseCurrencyAtTime || undefined,
+              })}
             </div>
-          )}
-        </div>
-      );
+            {originalCurrency && originalAmount != null && (
+              <div
+                className="text-[11px] text-muted-foreground/70 metric-numeric"
+                title={`Rate: ${exchangeRate ?? "N/A"}${rateSource === "cached" ? " (cached)" : ""}`}
+              >
+                ({formatCurrencyDirect(originalAmount, {
+                  currency: originalCurrency,
+                  ...(originalSymbol && { currencySymbol: originalSymbol })
+                } as Record<string, unknown>)})
+                {rateSource === "cached" && (
+                  <span
+                    className="ml-0.5 text-amber-500"
+                    title="Used cached exchange rate"
+                    aria-label="Used cached exchange rate"
+                    role="img"
+                  >
+                    !
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
-  },
-  {
-    accessorKey: "date",
-    header: ({ column }) => (
-      <SortHeader label="Transaction Date" column={column} />
-    ),
-    cell: ({ row }) => format(row.original.date, "MMM dd, yyyy"),
-  },
-  {
-    accessorKey: "paymentMethod",
-    header: "Payment Method",
-    cell: ({ row }) => {
-      const paymentMethod = row.original.paymentMethod;
-      if (!paymentMethod) return "N/A";
-      //remove _
-      const paymentMethodWithoutUnderscore = paymentMethod
-        ?.replace("_", " ")
-        ?.toLowerCase();
-      return <div className="capitalize">{paymentMethodWithoutUnderscore}</div>;
+    {
+      accessorKey: "date",
+      header: ({ column }) => (
+        <SortHeader label="Transaction Date" column={column} />
+      ),
+      cell: ({ row }) => format(row.original.date, "MMM dd, yyyy"),
     },
-  },
-  {
-    accessorKey: "recurringInterval",
-    header: ({ column }) => <SortHeader label="Frequently" column={column} />,
-    cell: ({ row }) => {
-      const frequency = row.getValue("recurringInterval");
-      const nextDate = row.original?.nextRecurringDate;
-      const isRecurring = row.original?.isRecurring;
+    {
+      accessorKey: "paymentMethod",
+      header: "Payment Method",
+      cell: ({ row }) => {
+        const paymentMethod = row.original.paymentMethod;
+        if (!paymentMethod) return "N/A";
+        //remove _
+        const paymentMethodWithoutUnderscore = paymentMethod
+          ?.replace("_", " ")
+          ?.toLowerCase();
+        return <div className="capitalize">{paymentMethodWithoutUnderscore}</div>;
+      },
+    },
+    {
+      accessorKey: "recurringInterval",
+      header: ({ column }) => <SortHeader label="Frequently" column={column} />,
+      cell: ({ row }) => {
+        const frequency = row.getValue("recurringInterval");
+        const nextDate = row.original?.nextRecurringDate;
+        const isRecurring = row.original?.isRecurring;
 
-      const frequencyMap: FrequencyMapType = isRecurring
-        ? {
+        const frequencyMap: FrequencyMapType = isRecurring
+          ? {
             [_TRANSACTION_FREQUENCY.DAILY]: { label: "Daily", icon: RefreshCw },
             [_TRANSACTION_FREQUENCY.WEEKLY]: {
               label: "Weekly",
@@ -299,35 +310,35 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
             },
             DEFAULT: { label: "One-time", icon: CircleDot }, // Fallback
           }
-        : { DEFAULT: { label: "One-time", icon: CircleDot } };
+          : { DEFAULT: { label: "One-time", icon: CircleDot } };
 
-      const frequencyKey = isRecurring ? (frequency as string) : "DEFAULT";
-      const frequencyInfo =
-        frequencyMap?.[frequencyKey] || frequencyMap.DEFAULT;
-      const { label, icon: Icon } = frequencyInfo;
+        const frequencyKey = isRecurring ? (frequency as string) : "DEFAULT";
+        const frequencyInfo =
+          frequencyMap?.[frequencyKey] || frequencyMap.DEFAULT;
+        const { label, icon: Icon } = frequencyInfo;
 
-      return (
-        <div className="flex items-center gap-2">
-          <Icon className="h-4 w-4 text-muted-foreground" />
-          <div className="flex flex-col">
-            <span>{label}</span>
-            {nextDate && isRecurring && (
-              <span className="text-xs text-muted-foreground">
-                Next: {format(nextDate, "MMM dd yyyy")}
-              </span>
-            )}
+        return (
+          <div className="flex items-center gap-2">
+            <Icon className="h-4 w-4 text-muted-foreground" />
+            <div className="flex flex-col">
+              <span>{label}</span>
+              {nextDate && isRecurring && (
+                <span className="text-xs text-muted-foreground">
+                  Next: {format(nextDate, "MMM dd yyyy")}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      );
+        );
+      },
+      filterFn: (row, id, value) => value.includes(row.getValue(id)),
     },
-    filterFn: (row, id, value) => value.includes(row.getValue(id)),
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => <ActionsCell row={row} />,
-  },
-];
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => <ActionsCell row={row} />,
+    },
+  ];
 
 // eslint-disable-next-line react-refresh/only-export-components
 const ActionsCell = ({ row }: { row: Row<TransactionType> }) => {
