@@ -25,6 +25,7 @@ export interface LoginResponse {
 	message?: string;
 	user: AuthUser;
 	accessToken: string;
+	refreshToken?: string;
 	expiresAt: number;
 	reportSetting: AuthReportSetting | null;
 }
@@ -43,6 +44,7 @@ export interface VerifyOtpResponse {
 	data: {
 		user: AuthUser;
 		accessToken: string;
+		refreshToken?: string;
 		expiresAt: number;
 		reportSetting: AuthReportSetting | null;
 		verified: boolean;
@@ -72,4 +74,10 @@ export interface ErrorResponse {
 		message?: string;
 		errorCode?: string;
 	};
+}
+
+export interface RefreshTokenResponse {
+	accessToken: string;
+	expiresAt: number;
+	refreshToken?: string;
 }
