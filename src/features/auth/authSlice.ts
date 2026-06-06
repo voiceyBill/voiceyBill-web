@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 interface AuthState {
   accessToken: string | null;
+  refreshToken: string | null;
   expiresAt: number | null;
   user: User | null;
   reportSetting: ReportSetting | null;
@@ -23,7 +24,9 @@ interface ReportSetting {
 }
 
 const initialState: AuthState = {
+  // ✅ Keep both — accessToken from localStorage + refreshToken
   accessToken: localStorage.getItem("token") || null,
+  refreshToken: null,
   expiresAt: null,
   user: null,
   reportSetting: null,
@@ -36,64 +39,42 @@ const authSlice = createSlice({
   reducers: {
     setCredentials: (state, action) => {
       state.accessToken = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken || null;
       state.expiresAt = action.payload.expiresAt;
       state.user = action.payload.user;
       state.reportSetting = action.payload.reportSetting;
 
-      // SAVE TOKEN
-      localStorage.setItem(
-        "token",
-        action.payload.accessToken
-      );
+      // ✅ Save token to localStorage
+      localStorage.setItem("token", action.payload.accessToken);
     },
 
     updateCredentials: (state, action) => {
-      const {
-        accessToken,
-        expiresAt,
-        user,
-        reportSetting,
-      } = action.payload;
+      const { accessToken, refreshToken, expiresAt, user, reportSetting } =
+        action.payload;
 
       if (accessToken !== undefined) {
         state.accessToken = accessToken;
-
-        // UPDATE TOKEN
         localStorage.setItem("token", accessToken);
       }
-
-      if (expiresAt !== undefined) {
-        state.expiresAt = expiresAt;
-      }
-
-      if (user !== undefined) {
-        state.user = { ...state.user, ...user };
-      }
-
-      if (reportSetting !== undefined) {
-        state.reportSetting = {
-          ...state.reportSetting,
-          ...reportSetting,
-        };
-      }
+      if (refreshToken !== undefined) state.refreshToken = refreshToken;
+      if (expiresAt !== undefined) state.expiresAt = expiresAt;
+      if (user !== undefined) state.user = { ...state.user, ...user };
+      if (reportSetting !== undefined)
+        state.reportSetting = { ...state.reportSetting, ...reportSetting };
     },
 
     logout: (state) => {
       state.accessToken = null;
+      state.refreshToken = null;
       state.expiresAt = null;
       state.user = null;
       state.reportSetting = null;
 
-      // REMOVE TOKEN
       localStorage.removeItem("token");
     },
   },
 });
 
-export const {
-  setCredentials,
-  updateCredentials,
-  logout,
-} = authSlice.actions;
+export const { setCredentials, updateCredentials, logout } = authSlice.actions;
 
 export default authSlice.reducer;

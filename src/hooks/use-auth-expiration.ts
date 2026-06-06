@@ -4,21 +4,29 @@ import { logout, updateCredentials } from "@/features/auth/authSlice";
 import { useRefreshMutation } from "@/features/auth/authAPI";
 
 const useAuthExpiration = () => {
-  const { accessToken, expiresAt } = useTypedSelector((state) => state.auth);
+  const { accessToken, expiresAt, refreshToken: storedRefreshToken } = useTypedSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const [refreshToken] = useRefreshMutation();
 
   useEffect(() => {
     const handleLogout = () => {
-      
+
       dispatch(logout());
     };
 
     const handleTokenRefresh = async () => {
       try {
-        const { accessToken, expiresAt } = await refreshToken({}).unwrap();
-        dispatch(updateCredentials({ accessToken, expiresAt }));
-        
+
+        if (!storedRefreshToken) {
+          throw new Error("No refresh token stored");
+        }
+
+        const { accessToken, expiresAt, refreshToken: newRefreshToken } = await refreshToken({
+          refreshToken: storedRefreshToken
+        }).unwrap();
+        dispatch(updateCredentials({ accessToken, expiresAt, refreshToken: newRefreshToken || storedRefreshToken }));
+
+
       } catch (error) {
         console.error("Token refresh failed, logging out...", error);
         handleLogout();
@@ -28,17 +36,21 @@ const useAuthExpiration = () => {
     if (accessToken && expiresAt) {
       const currentTime = Date.now();
       const timeUntilExpiration = expiresAt - currentTime;
-      if (timeUntilExpiration <= 0) {
-        // Token is already expired
+
+      // Refresh slightly BEFORE it expires
+      const bufferTime = 60 * 1000;
+
+      if (timeUntilExpiration <= bufferTime) {
+        // Token is already expired or very close to expiring
         handleTokenRefresh();
       } else {
-        // Set a timeout to log out the user when the token expires
-        const timer = setTimeout(handleLogout, timeUntilExpiration);
+        // Set a timeout to REFRESH the token right before it expires
+        const timer = setTimeout(handleTokenRefresh, timeUntilExpiration - bufferTime);
         // Cleanup the timer on component unmount or token change
         return () => clearTimeout(timer);
       }
     }
-  }, [accessToken, dispatch, expiresAt, refreshToken]);
+  }, [accessToken, dispatch, expiresAt, refreshToken, storedRefreshToken]);
 };
 
 export default useAuthExpiration;
