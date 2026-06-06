@@ -38,7 +38,7 @@ import {
   _TRANSACTION_TYPE,
   PAYMENT_METHODS,
 } from "@/constant";
-import { useGetCategoriesQuery } from "@/features/category/categoryAPI";
+import { useGetCategoriesQuery, useCreateCategoryMutation } from "@/features/category/categoryAPI";
 import { Switch } from "../ui/switch";
 import CurrencyInputField from "../ui/currency-input";
 import { SingleSelector } from "../ui/single-select";
@@ -100,7 +100,9 @@ const TransactionForm = (props: {
   } = props;
 
   const [isScanning, setIsScanning] = useState(false);
+  const [categoryInput, setCategoryInput] = useState("");
   const { data: categoriesData } = useGetCategoriesQuery();
+  const [createCategory] = useCreateCategoryMutation();
   const categoryOptions = (categoriesData?.data ?? []).map((cat) => ({
     value: cat.name.toLowerCase(),
     label: cat.name,
@@ -473,8 +475,37 @@ const TransactionForm = (props: {
                     onChange={(option) => field.onChange(option.value)}
                     options={categoryOptions}
                     placeholder="Select or type a category"
-                    creatable
                     disabled={isScanning}
+                    inputProps={{
+                      onValueChange: (val) => setCategoryInput(val),
+                    }}
+                    emptyIndicator={
+                      <div className="flex items-center justify-between px-3 py-2">
+                        <span className="text-sm text-muted-foreground">No match found</span>
+                        {categoryInput.trim() && (
+                          <button
+                            type="button"
+                            className="text-sm font-medium text-primary hover:underline"
+                            onMouseDown={async (e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              try {
+                                const colors = ["#22C55E","#F97316","#3B82F6","#8B5CF6","#EC4899","#F59E0B","#EF4444","#06B6D4"];
+                                const color = colors[Math.floor(categoryInput.length % colors.length)];
+                                await createCategory({ name: categoryInput.trim(), color }).unwrap();
+                                field.onChange(categoryInput.trim().toLowerCase());
+                                setCategoryInput("");
+                                toast.success(`Category "${categoryInput.trim()}" added`);
+                              } catch {
+                                toast.error("Failed to add category");
+                              }
+                            }}
+                          >
+                            + Add Category
+                          </button>
+                        )}
+                      </div>
+                    }
                   />
                   <FormMessage />
                 </FormItem>
