@@ -3,15 +3,16 @@ import { transactionColumns } from "./column";
 import { _TRANSACTION_TYPE, _TransactionType } from "@/constant";
 import { useState } from "react";
 import useDebouncedSearch from "@/hooks/use-debounce-search";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   useBulkDeleteTransactionMutation,
   useGetAllTransactionsQuery,
 } from "@/features/transaction/transactionAPI";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { useGetSupportedCurrenciesQuery } from "@/features/currency/currencyAPI";
 
 type FilterType = {
   type?: _TransactionType;
@@ -26,6 +27,9 @@ const TransactionTable = (props: {
   pageSize?: number;
   isShowPagination?: boolean;
 }) => {
+  const formatCurrency = useFormatCurrency();
+  const { data: currencyData } = useGetSupportedCurrenciesQuery();
+
   const [filter, setFilter] = useState<FilterType>({
     type: undefined,
     recurringStatus: undefined,
@@ -68,8 +72,11 @@ const TransactionTable = (props: {
 
     setFilter((prev) => ({
       ...prev,
-      type: type as _TransactionType,
-      recurringStatus: frequently as "RECURRING" | "NON_RECURRING",
+      type: (type || undefined) as _TransactionType | undefined,
+      recurringStatus: (frequently || undefined) as
+        | "RECURRING"
+        | "NON_RECURRING"
+        | undefined,
     }));
   };
 
@@ -97,6 +104,7 @@ const TransactionTable = (props: {
         toast.error(error.data?.message || "Failed to delete transactions"),
       );
   };
+
   const handleExport = async () => {
     try {
       const params = new URLSearchParams();
@@ -137,14 +145,13 @@ const TransactionTable = (props: {
       if (!response.ok) throw new Error("Export failed");
 
       const arrayBuffer = await response.arrayBuffer();
-
       const excelBlob = new Blob([arrayBuffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
       const url = window.URL.createObjectURL(excelBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "transactions.xlsx";
+      a.download = `transactions-${Date.now()}.xlsx`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -167,7 +174,6 @@ const TransactionTable = (props: {
           onChange={(e) => handleDateChange("dateFrom", e.target.value)}
           className="w-[180px]"
         />
-
         <Input
           type="date"
           value={filter.dateTo}
@@ -177,15 +183,17 @@ const TransactionTable = (props: {
         <Button
           onClick={handleExport}
           variant="outline"
-         className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white" >
+          className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white"
+        >
           <Download className="w-4 h-4" />
           Export Excel
         </Button>
       </div>
+
       {/* TABLE */}
       <DataTable
         data={transactions}
-        columns={transactionColumns}
+        columns={transactionColumns(formatCurrency, currencyData?.currencies)}
         searchPlaceholder="Search transactions..."
         isLoading={isFetching}
         isBulkDeleting={isBulkDeleting}
@@ -210,9 +218,9 @@ const TransactionTable = (props: {
           },
         ]}
         onSearch={handleSearch}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        onFilterChange={handleFilterChange}
+        onPageChange={(pageNumber) => handlePageChange(pageNumber)}
+        onPageSizeChange={(pageSize) => handlePageSizeChange(pageSize)}
+        onFilterChange={(filters) => handleFilterChange(filters)}
         onBulkDelete={handleBulkDelete}
       />
     </div>

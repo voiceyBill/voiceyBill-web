@@ -36,12 +36,6 @@ const getCurrentMonthYear = () => {
   };
 };
 
-// const getRemainingDaysInMonth = () => {
-//   const now = new Date();
-//   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-//   return lastDay.getDate() - now.getDate();
-// };
-
 const getBudgetMonthOptions = () => {
   const formatter = new Intl.DateTimeFormat("en-US", {
     month: "long",
@@ -351,13 +345,12 @@ function BudgetCategoryDistribution({
                       </div>
                       <div className="shrink-0 text-right space-y-1">
                         <p
-                          className={`text-sm font-bold ${
-                            category.usagePercentage >= 100
+                          className={`text-sm font-bold ${category.usagePercentage >= 100
                               ? "text-red-600"
                               : category.usagePercentage >= 75
                                 ? "text-yellow-500"
                                 : "text-green-600"
-                          }`}
+                            }`}
                         >
                           {Math.round(category.usagePercentage)}%
                         </p>
