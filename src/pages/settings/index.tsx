@@ -16,7 +16,6 @@ const Settings = () => {
     { title: "Account", href: PROTECTED_ROUTES.SETTINGS },
     { title: "Appearance", href: PROTECTED_ROUTES.SETTINGS_APPEARANCE },
     { title: "Security", href: PROTECTED_ROUTES.SETTINGS_SECURITY },
-    { title: "Categories", href: PROTECTED_ROUTES.SETTINGS_CATEGORIES },
     // { title: "Billings", href: PROTECTED_ROUTES.SETTINGS_BILLING },
   ];
   return (

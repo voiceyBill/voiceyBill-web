@@ -1,6 +1,6 @@
 import * as z from "zod";
 import { useEffect, useState } from "react";
-import { Calendar, Loader, Plus } from "lucide-react";
+import { Calendar, Loader } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -43,14 +43,6 @@ import { Switch } from "../ui/switch";
 import CurrencyInputField from "../ui/currency-input";
 import { SingleSelector } from "../ui/single-select";
 import { AIScanReceiptData } from "@/features/transaction/transationType";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import CategoryForm from "@/pages/settings/_components/category-form";
-import type { Category } from "@/features/category/categoryType";
 import {
   useCreateTransactionMutation,
   useGetSingleTransactionQuery,
@@ -108,7 +100,6 @@ const TransactionForm = (props: {
   } = props;
 
   const [isScanning, setIsScanning] = useState(false);
-  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const { data: categoriesData } = useGetCategoriesQuery();
   const categoryOptions = (categoriesData?.data ?? []).map((cat) => ({
     value: cat.name.toLowerCase(),
@@ -482,24 +473,8 @@ const TransactionForm = (props: {
                     onChange={(option) => field.onChange(option.value)}
                     options={categoryOptions}
                     placeholder="Select or type a category"
+                    creatable
                     disabled={isScanning}
-                    emptyIndicator={
-                      <button
-                        type="button"
-                        className="flex w-full items-center justify-between px-3 py-2 text-sm hover:bg-accent"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setShowCategoryDialog(true);
-                        }}
-                      >
-                        <span className="text-muted-foreground">No matching category</span>
-                        <span className="flex items-center gap-1 text-primary font-medium">
-                          <Plus className="h-3 w-3" />
-                          Add Category
-                        </span>
-                      </button>
-                    }
                   />
                   <FormMessage />
                 </FormItem>
@@ -698,19 +673,6 @@ const TransactionForm = (props: {
         </form>
       </Form>
 
-      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>New Category</DialogTitle>
-          </DialogHeader>
-          <CategoryForm
-            onDone={() => setShowCategoryDialog(false)}
-            onCreated={(category: Category) => {
-              form.setValue("category", category.name.toLowerCase());
-            }}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
