@@ -471,18 +471,7 @@ const TransactionForm = (props: {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Category</FormLabel>
-                    <button
-                      type="button"
-                      disabled={isScanning}
-                      onClick={() => setShowCategoryDialog(true)}
-                      className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-50"
-                    >
-                      <Plus className="h-3 w-3" />
-                      New category
-                    </button>
-                  </div>
+                  <FormLabel>Category</FormLabel>
                   <SingleSelector
                     value={
                       categoryOptions.find((opt) => opt.value === field.value) ||
@@ -493,8 +482,24 @@ const TransactionForm = (props: {
                     onChange={(option) => field.onChange(option.value)}
                     options={categoryOptions}
                     placeholder="Select or type a category"
-                    creatable
                     disabled={isScanning}
+                    emptyIndicator={
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-between px-3 py-2 text-sm hover:bg-accent"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowCategoryDialog(true);
+                        }}
+                      >
+                        <span className="text-muted-foreground">No matching category</span>
+                        <span className="flex items-center gap-1 text-primary font-medium">
+                          <Plus className="h-3 w-3" />
+                          Add Category
+                        </span>
+                      </button>
+                    }
                   />
                   <FormMessage />
                 </FormItem>
