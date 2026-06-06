@@ -24,13 +24,6 @@ const useAuthExpiration = () => {
         const { accessToken, expiresAt, refreshToken: newRefreshToken } = await refreshToken({
           refreshToken: storedRefreshToken
         }).unwrap();
-
-        console.log("✅ Token refreshed successfully");
-        console.log({
-          accessToken,
-          expiresAt,
-          refreshToken: newRefreshToken,
-        });
         dispatch(updateCredentials({ accessToken, expiresAt, refreshToken: newRefreshToken || storedRefreshToken }));
 
 
