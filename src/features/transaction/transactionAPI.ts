@@ -1,4 +1,5 @@
 import { apiClient } from "@/app/api-client";
+
 import {
   AIScanReceiptResponse,
   BulkImportTransactionPayload,
@@ -17,7 +18,34 @@ export const transactionApi = apiClient.injectEndpoints({
         method: "POST",
         body: body,
       }),
+
       invalidatesTags: ["transactions", "analytics", "budget"],
+    }),
+
+    exportTransactions: builder.query<
+      {
+        transactions: any[];
+        totalCount: number;
+        isLimited: boolean;
+      },
+      {
+        dateFrom?: string;
+        dateTo?: string;
+      }
+    >({
+      query: ({ dateFrom, dateTo }) => ({
+        url: "/transaction/export",
+        method: "GET",
+
+        params: {
+          dateFrom,
+          dateTo,
+        },
+
+        credentials: "include",
+      }),
+
+      providesTags: ["transactions"],
     }),
 
     aiScanReceipt: builder.mutation<AIScanReceiptResponse, FormData>({
@@ -28,7 +56,10 @@ export const transactionApi = apiClient.injectEndpoints({
       }),
     }),
 
-    processVoiceTransaction: builder.mutation<AIScanReceiptResponse, FormData>({
+    processVoiceTransaction: builder.mutation<
+      AIScanReceiptResponse,
+      FormData
+    >({
       query: (formData) => ({
         url: "/voice/process",
         method: "POST",
@@ -41,17 +72,23 @@ export const transactionApi = apiClient.injectEndpoints({
       GetAllTransactionParams
     >({
       query: (params) => {
-        const {
-          keyword = undefined,
-          type = undefined,
-          recurringStatus = undefined,
-          pageNumber = 1,
-          pageSize = 10,
-        } = params;
+      const {
+  keyword = undefined,
+  type = undefined,
+  recurringStatus = undefined,
+
+  // NEW
+  dateFrom = undefined,
+  dateTo = undefined,
+
+  pageNumber = 1,
+  pageSize = 10,
+} = params;
 
         return {
           url: "/transaction/all",
           method: "GET",
+
           params: {
             keyword,
             type,
@@ -61,10 +98,14 @@ export const transactionApi = apiClient.injectEndpoints({
           },
         };
       },
+
       providesTags: ["transactions"],
     }),
 
-    getSingleTransaction: builder.query<GetSingleTransactionResponse, string>({
+    getSingleTransaction: builder.query<
+      GetSingleTransactionResponse,
+      string
+    >({
       query: (id) => ({
         url: `/transaction/${id}`,
         method: "GET",
@@ -76,34 +117,42 @@ export const transactionApi = apiClient.injectEndpoints({
         url: `/transaction/duplicate/${id}`,
         method: "PUT",
       }),
+
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
 
-    updateTransaction: builder.mutation<void, UpdateTransactionPayload>({
+    updateTransaction: builder.mutation<
+      void,
+      UpdateTransactionPayload
+    >({
       query: ({ id, transaction }) => ({
         url: `/transaction/update/${id}`,
         method: "PUT",
         body: transaction,
       }),
+
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
 
-    bulkImportTransaction: builder.mutation<void, BulkImportTransactionPayload>(
-      {
-        query: (body) => ({
-          url: "/transaction/bulk-transaction",
-          method: "POST",
-          body,
-        }),
-        invalidatesTags: ["transactions", "analytics", "budget"],
-      },
-    ),
+    bulkImportTransaction: builder.mutation<
+      void,
+      BulkImportTransactionPayload
+    >({
+      query: (body) => ({
+        url: "/transaction/bulk-transaction",
+        method: "POST",
+        body,
+      }),
+
+      invalidatesTags: ["transactions", "analytics", "budget"],
+    }),
 
     deleteTransaction: builder.mutation<void, string>({
       query: (id) => ({
         url: `/transaction/delete/${id}`,
         method: "DELETE",
       }),
+
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
 
@@ -111,10 +160,12 @@ export const transactionApi = apiClient.injectEndpoints({
       query: (transactionIds) => ({
         url: "/transaction/bulk-delete",
         method: "DELETE",
+
         body: {
           transactionIds,
         },
       }),
+
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
   }),
@@ -122,6 +173,7 @@ export const transactionApi = apiClient.injectEndpoints({
 
 export const {
   useCreateTransactionMutation,
+  useLazyExportTransactionsQuery,
   useGetAllTransactionsQuery,
   useAiScanReceiptMutation,
   useProcessVoiceTransactionMutation,
