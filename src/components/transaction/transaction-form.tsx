@@ -4,6 +4,7 @@ import { Calendar, Loader } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { getFlagUrl } from "@/lib/currency-flag";
 import {
   Form,
   FormControl,
@@ -50,6 +51,7 @@ import {
 import { toast } from "sonner";
 import { useTypedSelector } from "@/app/hook";
 import { useGetSupportedCurrenciesQuery } from "@/features/currency/currencyAPI";
+import { ALL_CURRENCIES } from "@/constants/currencies";
 
 const formSchema = z.object({
   title: z
@@ -383,15 +385,63 @@ const TransactionForm = (props: {
                     >
                       <FormControl className="w-full">
                         <SelectTrigger>
-                          <SelectValue placeholder="USD" />
+                          <SelectValue placeholder="USD">
+                            {field.value && (
+                              <span className="flex items-center gap-2">
+                                {(() => {
+                                  const flagUrl = getFlagUrl(field.value);
+                                  const currency = (
+                                    currencyData?.currencies &&
+                                    currencyData.currencies.length > 0
+                                      ? currencyData.currencies
+                                      : ALL_CURRENCIES
+                                  ).find((c) => c.code === field.value);
+                                  return (
+                                    <>
+                                      {flagUrl && (
+                                        <img
+                                          src={flagUrl}
+                                          alt={field.value}
+                                          className="h-3 w-4.5 rounded-sm object-cover shrink-0"
+                                        />
+                                      )}
+                                      <span>
+                                        {currency
+                                          ? `${currency.symbol} ${currency.code}`
+                                          : field.value}
+                                      </span>
+                                    </>
+                                  );
+                                })()}
+                              </span>
+                            )}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {currencyData?.currencies?.map((c) => (
-                          <SelectItem key={c.code} value={c.code}>
-                            {c.symbol} {c.code}
-                          </SelectItem>
-                        ))}
+                        {(currencyData?.currencies &&
+                        currencyData.currencies.length > 0
+                          ? currencyData.currencies
+                          : ALL_CURRENCIES
+                        ).map((c) => {
+                          const flagUrl = getFlagUrl(c.code);
+                          return (
+                            <SelectItem key={c.code} value={c.code}>
+                              <span className="flex items-center gap-2">
+                                {flagUrl && (
+                                  <img
+                                    src={flagUrl}
+                                    alt={c.code}
+                                    className="h-3 w-4.5 rounded-sm object-cover shrink-0"
+                                  />
+                                )}
+                                <span>
+                                  {c.symbol} {c.code}
+                                </span>
+                              </span>
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                     <FormMessage />

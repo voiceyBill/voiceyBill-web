@@ -63,7 +63,7 @@ const VerifyOtpForm = () => {
       .then((data) => {
         toast.success("Email verified successfully!");
         // Auto-login: Store credentials and redirect to dashboard
-        dispatch(setCredentials(data));
+        dispatch(setCredentials(data.data));
         setTimeout(() => {
           navigate(PROTECTED_ROUTES.OVERVIEW);
         }, 1000);
