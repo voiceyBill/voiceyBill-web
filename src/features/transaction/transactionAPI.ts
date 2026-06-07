@@ -1,4 +1,5 @@
 import { apiClient } from "@/app/api-client";
+
 import {
   AIScanReceiptResponse,
   BulkImportTransactionPayload,
@@ -21,26 +22,18 @@ export const transactionApi = apiClient.injectEndpoints({
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
 
+    // ✅ FIX: removed unused dateFrom/dateTo params and any type
     exportTransactions: builder.query<
       {
-        transactions: any[];
+        transactions: GetAllTransactionResponse["transactions"];
         totalCount: number;
         isLimited: boolean;
       },
-      {
-        dateFrom?: string;
-        dateTo?: string;
-      }
+      void
     >({
-      query: ({ dateFrom, dateTo }) => ({
+      query: () => ({
         url: "/transaction/export",
         method: "GET",
-
-        params: {
-          dateFrom,
-          dateTo,
-        },
-
         credentials: "include",
       }),
 
@@ -55,10 +48,7 @@ export const transactionApi = apiClient.injectEndpoints({
       }),
     }),
 
-    processVoiceTransaction: builder.mutation<
-      AIScanReceiptResponse,
-      FormData
-    >({
+    processVoiceTransaction: builder.mutation<AIScanReceiptResponse, FormData>({
       query: (formData) => ({
         url: "/voice/process",
         method: "POST",
@@ -71,18 +61,14 @@ export const transactionApi = apiClient.injectEndpoints({
       GetAllTransactionParams
     >({
       query: (params) => {
-      const {
-  keyword = undefined,
-  type = undefined,
-  recurringStatus = undefined,
-
-  // NEW
-  dateFrom = undefined,
-  dateTo = undefined,
-
-  pageNumber = 1,
-  pageSize = 10,
-} = params;
+        // ✅ FIX: removed unused dateFrom/dateTo destructuring
+        const {
+          keyword = undefined,
+          type = undefined,
+          recurringStatus = undefined,
+          pageNumber = 1,
+          pageSize = 10,
+        } = params;
 
         return {
           url: "/transaction/all",
@@ -101,10 +87,7 @@ export const transactionApi = apiClient.injectEndpoints({
       providesTags: ["transactions"],
     }),
 
-    getSingleTransaction: builder.query<
-      GetSingleTransactionResponse,
-      string
-    >({
+    getSingleTransaction: builder.query<GetSingleTransactionResponse, string>({
       query: (id) => ({
         url: `/transaction/${id}`,
         method: "GET",
@@ -120,10 +103,7 @@ export const transactionApi = apiClient.injectEndpoints({
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
 
-    updateTransaction: builder.mutation<
-      void,
-      UpdateTransactionPayload
-    >({
+    updateTransaction: builder.mutation<void, UpdateTransactionPayload>({
       query: ({ id, transaction }) => ({
         url: `/transaction/update/${id}`,
         method: "PUT",
@@ -133,18 +113,17 @@ export const transactionApi = apiClient.injectEndpoints({
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
 
-    bulkImportTransaction: builder.mutation<
-      void,
-      BulkImportTransactionPayload
-    >({
-      query: (body) => ({
-        url: "/transaction/bulk-transaction",
-        method: "POST",
-        body,
-      }),
+    bulkImportTransaction: builder.mutation<void, BulkImportTransactionPayload>(
+      {
+        query: (body) => ({
+          url: "/transaction/bulk-transaction",
+          method: "POST",
+          body,
+        }),
 
-      invalidatesTags: ["transactions", "analytics", "budget"],
-    }),
+        invalidatesTags: ["transactions", "analytics", "budget"],
+      },
+    ),
 
     deleteTransaction: builder.mutation<void, string>({
       query: (id) => ({
