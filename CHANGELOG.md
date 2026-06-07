@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.5.0...voiceybill-client-v1.5.1) (2026-06-06)
+
+
+### Bug Fixes
+
+* **auth:** Prevent automatic user logout by refreshing access token before expiry ([#179](https://github.com/voiceyBill/voiceyBill-web/issues/179)) ([19e373e](https://github.com/voiceyBill/voiceyBill-web/commit/19e373e724a80761f877c4683c7add4953b01cd6))
+* **ui:** Display currency symbol instead of currency code on overview page ([#178](https://github.com/voiceyBill/voiceyBill-web/issues/178)) ([effc719](https://github.com/voiceyBill/voiceyBill-web/commit/effc7193473f0512ffcb1980f219f4083cfa36de))
+
 ## [1.5.0](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.4.0...voiceybill-client-v1.5.0) (2026-06-05)
 
 

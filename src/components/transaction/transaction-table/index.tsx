@@ -9,9 +9,6 @@ import {
   useGetAllTransactionsQuery,
 } from "@/features/transaction/transactionAPI";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
 import { useGetSupportedCurrenciesQuery } from "@/features/currency/currencyAPI";
 
 type FilterType = {
@@ -29,7 +26,6 @@ const TransactionTable = (props: {
 }) => {
   const formatCurrency = useFormatCurrency();
   const { data: currencyData } = useGetSupportedCurrenciesQuery();
-
   const [filter, setFilter] = useState<FilterType>({
     type: undefined,
     recurringStatus: undefined,
@@ -64,6 +60,7 @@ const TransactionTable = (props: {
   };
 
   const handleSearch = (value: string) => {
+
     setSearchTerm(value);
   };
 
@@ -105,34 +102,24 @@ const TransactionTable = (props: {
       );
   };
 
-  const handleExport = async () => {
-    try {
-      const params = new URLSearchParams();
-
-      if (debouncedTerm) params.append("keyword", debouncedTerm);
-      if (filter.type === "INCOME" || filter.type === "EXPENSE") {
-        params.append("type", filter.type);
-      }
-      if (filter.recurringStatus)
-        params.append("recurringStatus", filter.recurringStatus);
-      if (filter.dateFrom?.trim()) params.append("dateFrom", filter.dateFrom);
-      if (filter.dateTo?.trim()) params.append("dateTo", filter.dateTo);
-
-      const hasFilter =
-        filter.type ||
-        filter.recurringStatus ||
-        filter.dateFrom?.trim() ||
-        filter.dateTo?.trim() ||
-        debouncedTerm;
-
-      if (!hasFilter) {
-        toast.warning("Please apply at least one filter before exporting.");
-        return;
-      }
-
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://localhost:8000/api/transaction/export?${params.toString()}`,
+  return (
+    <DataTable
+      data={transactions} //transactions
+      columns={transactionColumns(formatCurrency, currencyData?.currencies)}
+      searchPlaceholder="Search transactions..."
+      isLoading={isFetching}
+      isBulkDeleting={isBulkDeleting}
+      isShowPagination={props.isShowPagination}
+      pagination={pagination}
+      filters={[
+        {
+          key: "type",
+          label: "All Types",
+          options: [
+            { value: _TRANSACTION_TYPE.INCOME, label: "Income" },
+            { value: _TRANSACTION_TYPE.EXPENSE, label: "Expense" },
+          ],
+        },
         {
           method: "GET",
           credentials: "include",

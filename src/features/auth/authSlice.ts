@@ -24,8 +24,7 @@ interface ReportSetting {
 }
 
 const initialState: AuthState = {
-  // ✅ Keep both — accessToken from localStorage + refreshToken
-  accessToken: localStorage.getItem("token") || null,
+  accessToken: null,
   refreshToken: null,
   expiresAt: null,
   user: null,
@@ -49,13 +48,9 @@ const authSlice = createSlice({
     },
 
     updateCredentials: (state, action) => {
-      const { accessToken, refreshToken, expiresAt, user, reportSetting } =
-        action.payload;
+      const { accessToken, refreshToken, expiresAt, user, reportSetting } = action.payload;
 
-      if (accessToken !== undefined) {
-        state.accessToken = accessToken;
-        localStorage.setItem("token", accessToken);
-      }
+      if (accessToken !== undefined) state.accessToken = accessToken;
       if (refreshToken !== undefined) state.refreshToken = refreshToken;
       if (expiresAt !== undefined) state.expiresAt = expiresAt;
       if (user !== undefined) state.user = { ...state.user, ...user };

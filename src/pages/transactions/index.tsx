@@ -1,7 +1,12 @@
+import { useState } from "react";
+import { Download } from "lucide-react";
+import { toast } from "sonner";
+
+import { useLazyExportTransactionsQuery } from "@/features/transaction/transactionAPI";
+import { downloadFile } from "../../lib/downloadCsv";
+
 import { Card, CardContent } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
-
 import PageLayout from "@/components/page-layout";
 
 import AddTransactionDrawer from "@/components/transaction/add-transaction-drawer";
@@ -13,43 +18,38 @@ import ImportTransactionModal from "@/components/transaction/import-transaction-
 import { Download } from "lucide-react";
 
 export default function Transactions() {
-  const handleExport = async () => {
+  const [isExporting, setIsExporting] = useState(false);
+
+  const [triggerExport] = useLazyExportTransactionsQuery();
+
+  const handleExportCSV = async () => {
+    if (isExporting) return;
+
     try {
-      const token = localStorage.getItem("token");
+      setIsExporting(true);
 
-      const url = `http://localhost:8000/api/transaction/export`;
-
-      const response = await fetch(url, {
-        method: "GET",
-
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      toast.loading("Preparing export...", {
+        id: "export-transactions",
       });
 
-      if (!response.ok) {
-        throw new Error("Export failed");
-      }
+      const blob = await triggerExport().unwrap();
 
-      const blob = await response.blob();
+      downloadFile(
+        blob,
+        `transactions-${new Date().toISOString().split("T")[0]}.csv`,
+      );
 
-      const downloadUrl = window.URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-
-      a.href = downloadUrl;
-
-      a.download = "transactions.xlsx";
-
-      document.body.appendChild(a);
-
-      a.click();
-
-      a.remove();
-
-      window.URL.revokeObjectURL(downloadUrl);
+      toast.success("Export completed", {
+        id: "export-transactions",
+      });
     } catch (error) {
-      console.error("Export failed:", error);
+      console.error(error);
+
+      toast.error("Export failed", {
+        id: "export-transactions",
+      });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -61,6 +61,17 @@ export default function Transactions() {
       rightAction={
         <div className="flex items-center gap-2">
           <ImportTransactionModal />
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportCSV}
+            disabled={isExporting}
+            className="gap-2 text-black dark:text-white"
+          >
+            <Download className="h-4 w-4" />
+            {isExporting ? "Exporting..." : "Export CSV"}
+          </Button>
 
           <AddTransactionDrawer />
         </div>

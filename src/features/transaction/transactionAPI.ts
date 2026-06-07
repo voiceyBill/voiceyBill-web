@@ -146,6 +146,13 @@ export const transactionApi = apiClient.injectEndpoints({
 
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
+    exportTransactions: builder.query<Blob, void>({
+      query: () => ({
+        url: "/transaction/export",
+        method: "GET",
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -161,4 +168,5 @@ export const {
   useBulkImportTransactionMutation,
   useDeleteTransactionMutation,
   useBulkDeleteTransactionMutation,
+  useLazyExportTransactionsQuery,
 } = transactionApi;
