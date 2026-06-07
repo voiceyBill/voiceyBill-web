@@ -1,8 +1,7 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { transactionColumns } from "./column";
 import { _TRANSACTION_TYPE, _TransactionType } from "@/constant";
-import { useState } from "react";
 import useDebouncedSearch from "@/hooks/use-debounce-search";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
@@ -48,21 +47,36 @@ const TransactionTable = (props: {
     dateTo: "",
   });
 
+  const { onFiltersChange } = props;
+
   const filter = isControlled
     ? props.filters!
     : { keyword: "", ...internalFilter };
 
-  const setFilter = isControlled
-    ? props.onFiltersChange!
-    : (updater: React.SetStateAction<TransactionTableFilters>) => {
-        setInternalFilter((prev) => {
-          const current = { keyword: "", ...prev };
-          const next =
-            typeof updater === "function" ? updater(current) : updater;
-          const { keyword: _keyword, ...rest } = next;
-          return rest;
-        });
-      };
+  const updateFilter = useCallback(
+    (updater: React.SetStateAction<TransactionTableFilters>) => {
+      if (isControlled && onFiltersChange) {
+        onFiltersChange(updater);
+        return;
+      }
+
+      setInternalFilter((prev) => {
+        const current = { keyword: "", ...prev };
+        const next =
+          typeof updater === "function" ? updater(current) : updater;
+
+        return {
+          type: next.type,
+          recurringStatus: next.recurringStatus,
+          dateFrom: next.dateFrom,
+          dateTo: next.dateTo,
+          pageNumber: next.pageNumber,
+          pageSize: next.pageSize,
+        };
+      });
+    },
+    [isControlled, onFiltersChange],
+  );
 
   const { debouncedTerm, setSearchTerm } = useDebouncedSearch(
     isControlled ? filter.keyword : "",
@@ -70,11 +84,15 @@ const TransactionTable = (props: {
   );
 
   useEffect(() => {
-    if (!isControlled) return;
+    if (!isControlled || !onFiltersChange) return;
     if (debouncedTerm === filter.keyword) return;
 
-    setFilter((prev) => ({ ...prev, keyword: debouncedTerm, pageNumber: 1 }));
-  }, [debouncedTerm, filter.keyword, isControlled, setFilter]);
+    onFiltersChange((prev) => ({
+      ...prev,
+      keyword: debouncedTerm,
+      pageNumber: 1,
+    }));
+  }, [debouncedTerm, filter.keyword, isControlled, onFiltersChange]);
 
   const keyword = isControlled ? filter.keyword : debouncedTerm;
 
@@ -102,7 +120,7 @@ const TransactionTable = (props: {
 
   const handleFilterChange = (filters: Record<string, string>) => {
     const { type, frequently } = filters;
-    setFilter((prev) => ({
+    updateFilter((prev) => ({
       ...prev,
       type: (type || undefined) as _TransactionType | undefined,
       recurringStatus: (frequently || undefined) as
@@ -117,7 +135,7 @@ const TransactionTable = (props: {
     dateFrom: string;
     dateTo: string;
   }) => {
-    setFilter((prev) => ({
+    updateFilter((prev) => ({
       ...prev,
       dateFrom: range.dateFrom,
       dateTo: range.dateTo,
@@ -126,11 +144,11 @@ const TransactionTable = (props: {
   };
 
   const handlePageChange = (pageNumber: number) => {
-    setFilter((prev) => ({ ...prev, pageNumber }));
+    updateFilter((prev) => ({ ...prev, pageNumber }));
   };
 
   const handlePageSizeChange = (pageSize: number) => {
-    setFilter((prev) => ({ ...prev, pageSize }));
+    updateFilter((prev) => ({ ...prev, pageSize }));
   };
 
   const handleBulkDelete = (transactionIds: string[]) => {
