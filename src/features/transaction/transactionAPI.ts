@@ -21,25 +21,8 @@ export const transactionApi = apiClient.injectEndpoints({
 
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
-
-    exportTransactions: builder.query<
-      {
-        transactions: GetAllTransactionResponse["transactions"];
-        totalCount: number;
-        isLimited: boolean;
-      },
-      void
-    >({
-      query: () => ({
-        url: "/transaction/export",
-        method: "GET",
-        credentials: "include",
-      }),
-
-      providesTags: ["transactions"],
-    }),
-
-    aiScanReceipt: builder.mutation<AIScanReceiptResponse, FormData>({
+  
+     aiScanReceipt: builder.mutation<AIScanReceiptResponse, FormData>({
       query: (formData) => ({
         url: "/transaction/scan-receipt",
         method: "POST",
@@ -143,6 +126,13 @@ export const transactionApi = apiClient.injectEndpoints({
       }),
 
       invalidatesTags: ["transactions", "analytics", "budget"],
+    }),
+    exportTransactions: builder.query<Blob, void>({
+      query: () => ({
+        url: "/transaction/export",
+        method: "GET",
+        responseHandler: (response) => response.blob(),
+      }),
     }),
   }),
 });

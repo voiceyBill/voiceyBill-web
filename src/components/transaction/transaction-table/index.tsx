@@ -3,11 +3,13 @@ import { transactionColumns } from "./column";
 import { _TRANSACTION_TYPE, _TransactionType } from "@/constant";
 import { useState } from "react";
 import useDebouncedSearch from "@/hooks/use-debounce-search";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   useBulkDeleteTransactionMutation,
   useGetAllTransactionsQuery,
 } from "@/features/transaction/transactionAPI";
 import { toast } from "sonner";
+import { useGetSupportedCurrenciesQuery } from "@/features/currency/currencyAPI";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
@@ -25,6 +27,8 @@ const TransactionTable = (props: {
   pageSize?: number;
   isShowPagination?: boolean;
 }) => {
+  const formatCurrency = useFormatCurrency();
+  const { data: currencyData } = useGetSupportedCurrenciesQuery();
   const [filter, setFilter] = useState<FilterType>({
     type: undefined,
     recurringStatus: undefined,
@@ -187,8 +191,7 @@ const TransactionTable = (props: {
       {/* TABLE */}
       <DataTable
         data={transactions}
-        columns={transactionColumns}
-        searchPlaceholder="Search transactions..."
+        columns={transactionColumns(formatCurrency, currencyData?.currencies)}
         isLoading={isFetching}
         isBulkDeleting={isBulkDeleting}
         isShowPagination={props.isShowPagination}
