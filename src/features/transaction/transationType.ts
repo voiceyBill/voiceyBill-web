@@ -26,8 +26,18 @@ export interface GetAllTransactionParams {
   keyword?: string;
   type?: _TransactionType;
   recurringStatus?: "RECURRING" | "NON_RECURRING";
+  dateFrom?: string;
+  dateTo?: string;
   pageNumber?: number;
   pageSize?: number;
+}
+
+export interface ExportTransactionParams {
+  keyword?: string;
+  type?: _TransactionType;
+  recurringStatus?: "RECURRING" | "NON_RECURRING";
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 export interface TransactionType {

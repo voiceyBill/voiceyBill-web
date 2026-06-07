@@ -62,6 +62,9 @@ interface DataTableProps<TData> {
   };
   onPageChange?: (pageNumber: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
+  filterSlot?: React.ReactNode;
+  hasExtraFilters?: boolean;
+  onExtraFiltersReset?: () => void;
 }
 
 export function DataTable<TData>({
@@ -81,6 +84,9 @@ export function DataTable<TData>({
   pagination,
   onPageChange,
   onPageSizeChange,
+  filterSlot,
+  hasExtraFilters = false,
+  onExtraFiltersReset,
 }: DataTableProps<TData>) {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [filterValues, setFilterValues] = React.useState<
@@ -131,6 +137,7 @@ export function DataTable<TData>({
     setFilterValues({});
     onSearch?.("");
     onFilterChange?.({});
+    onExtraFiltersReset?.();
     setRowSelection({});
   };
 
@@ -181,7 +188,10 @@ export function DataTable<TData>({
             </Select>
           ))}
 
+          {filterSlot}
+
           {(searchTerm ||
+            hasExtraFilters ||
             Object.keys(rowSelection).length > 0 ||
             Object.keys(filterValues).length > 0) && (
             <Button

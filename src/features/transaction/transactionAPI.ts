@@ -4,6 +4,7 @@ import {
   AIScanReceiptResponse,
   BulkImportTransactionPayload,
   CreateTransactionBody,
+  ExportTransactionParams,
   GetAllTransactionParams,
   GetAllTransactionResponse,
   GetSingleTransactionResponse,
@@ -47,6 +48,8 @@ export const transactionApi = apiClient.injectEndpoints({
           keyword = undefined,
           type = undefined,
           recurringStatus = undefined,
+          dateFrom = undefined,
+          dateTo = undefined,
           pageNumber = 1,
           pageSize = 10,
         } = params;
@@ -59,6 +62,8 @@ export const transactionApi = apiClient.injectEndpoints({
             keyword,
             type,
             recurringStatus,
+            dateFrom,
+            dateTo,
             pageNumber,
             pageSize,
           },
@@ -127,10 +132,11 @@ export const transactionApi = apiClient.injectEndpoints({
 
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
-    exportTransactions: builder.query<Blob, void>({
-      query: () => ({
+    exportTransactions: builder.query<Blob, ExportTransactionParams | void>({
+      query: (params) => ({
         url: "/transaction/export",
         method: "GET",
+        params: params ?? {},
         responseHandler: (response) => response.blob(),
       }),
     }),

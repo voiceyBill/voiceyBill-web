@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { DataTable } from "@/components/data-table";
 import { transactionColumns } from "./column";
 import { _TRANSACTION_TYPE, _TransactionType } from "@/constant";
@@ -10,26 +11,35 @@ import {
 } from "@/features/transaction/transactionAPI";
 import { toast } from "sonner";
 import { useGetSupportedCurrenciesQuery } from "@/features/currency/currencyAPI";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import TransactionDateRangeFilter from "@/components/transaction/transaction-date-range-filter";
 
-type FilterType = {
-  type?: _TransactionType | undefined;
-  recurringStatus?: "RECURRING" | "NON_RECURRING" | undefined;
-  pageNumber?: number;
-  pageSize?: number;
-  dateFrom?: string;
-  dateTo?: string;
+export type TransactionTableFilters = {
+  keyword: string;
+  type?: _TransactionType;
+  recurringStatus?: "RECURRING" | "NON_RECURRING";
+  dateFrom: string;
+  dateTo: string;
+  pageNumber: number;
+  pageSize: number;
 };
+
+type InternalFilterType = Omit<TransactionTableFilters, "keyword">;
 
 const TransactionTable = (props: {
   pageSize?: number;
   isShowPagination?: boolean;
+  filters?: TransactionTableFilters;
+  onFiltersChange?: React.Dispatch<
+    React.SetStateAction<TransactionTableFilters>
+  >;
+  showDateFilters?: boolean;
 }) => {
+  const isControlled = props.filters !== undefined && props.onFiltersChange !== undefined;
+
   const formatCurrency = useFormatCurrency();
   const { data: currencyData } = useGetSupportedCurrenciesQuery();
-  const [filter, setFilter] = useState<FilterType>({
+
+  const [internalFilter, setInternalFilter] = useState<InternalFilterType>({
     type: undefined,
     recurringStatus: undefined,
     pageNumber: 1,
@@ -38,17 +48,45 @@ const TransactionTable = (props: {
     dateTo: "",
   });
 
-  const { debouncedTerm, setSearchTerm } = useDebouncedSearch("", {
-    delay: 500,
-  });
+  const filter = isControlled
+    ? props.filters!
+    : { keyword: "", ...internalFilter };
+
+  const setFilter = isControlled
+    ? props.onFiltersChange!
+    : (updater: React.SetStateAction<TransactionTableFilters>) => {
+        setInternalFilter((prev) => {
+          const current = { keyword: "", ...prev };
+          const next =
+            typeof updater === "function" ? updater(current) : updater;
+          const { keyword: _keyword, ...rest } = next;
+          return rest;
+        });
+      };
+
+  const { debouncedTerm, setSearchTerm } = useDebouncedSearch(
+    isControlled ? filter.keyword : "",
+    { delay: 500 },
+  );
+
+  useEffect(() => {
+    if (!isControlled) return;
+    if (debouncedTerm === filter.keyword) return;
+
+    setFilter((prev) => ({ ...prev, keyword: debouncedTerm, pageNumber: 1 }));
+  }, [debouncedTerm, filter.keyword, isControlled, setFilter]);
+
+  const keyword = isControlled ? filter.keyword : debouncedTerm;
 
   const [bulkDeleteTransaction, { isLoading: isBulkDeleting }] =
     useBulkDeleteTransactionMutation();
 
   const { data, isFetching } = useGetAllTransactionsQuery({
-    keyword: debouncedTerm,
+    keyword: keyword || undefined,
     type: filter.type,
     recurringStatus: filter.recurringStatus,
+    dateFrom: filter.dateFrom.trim() || undefined,
+    dateTo: filter.dateTo.trim() || undefined,
     pageNumber: filter.pageNumber,
     pageSize: filter.pageSize,
   });
@@ -62,10 +100,6 @@ const TransactionTable = (props: {
     pageSize: filter.pageSize,
   };
 
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-  };
-
   const handleFilterChange = (filters: Record<string, string>) => {
     const { type, frequently } = filters;
     setFilter((prev) => ({
@@ -75,13 +109,18 @@ const TransactionTable = (props: {
         | "RECURRING"
         | "NON_RECURRING"
         | undefined,
+      pageNumber: 1,
     }));
   };
 
-  const handleDateChange = (key: "dateFrom" | "dateTo", value: string) => {
+  const handleDateRangeChange = (range: {
+    dateFrom: string;
+    dateTo: string;
+  }) => {
     setFilter((prev) => ({
       ...prev,
-      [key]: value || "",
+      dateFrom: range.dateFrom,
+      dateTo: range.dateTo,
       pageNumber: 1,
     }));
   };
@@ -103,99 +142,34 @@ const TransactionTable = (props: {
       );
   };
 
-  const handleExport = async () => {
-    try {
-      const params = new URLSearchParams();
-
-      if (debouncedTerm) params.append("keyword", debouncedTerm);
-      if (filter.type === "INCOME" || filter.type === "EXPENSE") {
-        params.append("type", filter.type);
-      }
-      if (filter.recurringStatus)
-        params.append("recurringStatus", filter.recurringStatus);
-      if (filter.dateFrom?.trim()) params.append("dateFrom", filter.dateFrom);
-      if (filter.dateTo?.trim()) params.append("dateTo", filter.dateTo);
-
-      const hasFilter =
-        filter.type ||
-        filter.recurringStatus ||
-        filter.dateFrom?.trim() ||
-        filter.dateTo?.trim() ||
-        debouncedTerm;
-
-      if (!hasFilter) {
-        toast.warning("Please apply at least one filter before exporting.");
-        return;
-      }
-
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://localhost:8000/api/transaction/export?${params.toString()}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) throw new Error("Export failed");
-
-      const arrayBuffer = await response.arrayBuffer();
-      const excelBlob = new Blob([arrayBuffer], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      const url = window.URL.createObjectURL(excelBlob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `transactions-${Date.now()}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast.success("Export successful");
-    } catch (err) {
-      console.error(err);
-      toast.error("Export failed");
-    }
-  };
+  const showDateFilters = props.showDateFilters ?? isControlled;
+  const hasDateFilter = Boolean(
+    filter.dateFrom.trim() || filter.dateTo.trim(),
+  );
 
   return (
-    <div className="space-y-4">
-      {/* FILTER BAR */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Input
-          type="date"
-          value={filter.dateFrom}
-          onChange={(e) => handleDateChange("dateFrom", e.target.value)}
-          className="w-[180px]"
-        />
-        <Input
-          type="date"
-          value={filter.dateTo}
-          onChange={(e) => handleDateChange("dateTo", e.target.value)}
-          className="w-[180px]"
-        />
-        <Button
-          onClick={handleExport}
-          variant="outline"
-          className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white"
-        >
-          <Download className="w-4 h-4" />
-          Export Excel
-        </Button>
-      </div>
-
-      {/* TABLE */}
-      <DataTable
+    <DataTable
         data={transactions}
         columns={transactionColumns(formatCurrency, currencyData?.currencies)}
         isLoading={isFetching}
         isBulkDeleting={isBulkDeleting}
         isShowPagination={props.isShowPagination}
         pagination={pagination}
+        filterSlot={
+          showDateFilters ? (
+            <TransactionDateRangeFilter
+              dateFrom={filter.dateFrom}
+              dateTo={filter.dateTo}
+              onChange={handleDateRangeChange}
+              disabled={isFetching}
+              className="h-9 min-w-[120px] sm:min-w-[160px] max-w-[200px] px-3 text-sm"
+            />
+          ) : undefined
+        }
+        hasExtraFilters={hasDateFilter}
+        onExtraFiltersReset={() =>
+          handleDateRangeChange({ dateFrom: "", dateTo: "" })
+        }
         filters={[
           {
             key: "type",
@@ -214,13 +188,12 @@ const TransactionTable = (props: {
             ],
           },
         ]}
-        onSearch={handleSearch}
-        onPageChange={(pageNumber) => handlePageChange(pageNumber)}
-        onPageSizeChange={(pageSize) => handlePageSizeChange(pageSize)}
-        onFilterChange={(filters) => handleFilterChange(filters)}
+        onSearch={setSearchTerm}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        onFilterChange={handleFilterChange}
         onBulkDelete={handleBulkDelete}
       />
-    </div>
   );
 };
 
