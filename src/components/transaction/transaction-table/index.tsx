@@ -1,6 +1,6 @@
 import { DataTable } from "@/components/data-table";
 import { transactionColumns } from "./column";
-import { _TRANSACTION_TYPE, _TransactionType } from "@/constant";
+import { _TRANSACTION_TYPE } from "@/constant";
 import { useState } from "react";
 import useDebouncedSearch from "@/hooks/use-debounce-search";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
