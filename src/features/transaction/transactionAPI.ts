@@ -1,5 +1,4 @@
 import { apiClient } from "@/app/api-client";
-
 import {
   AIScanReceiptResponse,
   BulkImportTransactionPayload,
