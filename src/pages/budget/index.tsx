@@ -429,40 +429,48 @@ export default function Budget() {
 
 
   const formatCurrency = useCallback(
-    (amount: number) =>
-      `${currencySymbol}${new Intl.NumberFormat("en-US").format(amount)}`,
+    (amount: number) => {
+      const isNegative = amount < 0;
+      const formatted = new Intl.NumberFormat("en-US").format(Math.abs(amount));
+      return isNegative ? `-${currencySymbol}${formatted}` : `${currencySymbol}${formatted}`;
+    },
     [currencySymbol]
   );
 
   const summaryItems = useMemo(
-    () => [
-      {
-        label: "Total Budget",
-        value: formatCurrency(budget?.totalBudget || 0),
-        progress: budget?.hasBudget ? 100 : 0,
-        tone: "safe" as const,
-      },
-      {
-        label: "Spent",
-        value: formatCurrency(budget?.spent || 0),
-        progress: budget?.usagePercentage || 0,
-        tone: getBudgetTone(budget?.usagePercentage || 0),
-      },
-      {
-        label: "Remaining",
-        value: formatCurrency(budget?.remaining || 0),
-        progress: budget?.hasBudget ? Math.max(100 - budget.usagePercentage, 0) : 0,
-        tone: getBudgetTone(budget?.usagePercentage || 0),
-      },
-      {
-        label: "Usage",
-        value: formatPercentage(budget?.usagePercentage || 0, {
-          decimalPlaces: 1,
-        }),
-        progress: budget?.usagePercentage || 0,
-        tone: getBudgetTone(budget?.usagePercentage || 0),
-      },
-    ],
+    () => {
+      const isOverBudget = (budget?.remaining ?? 0) < 0;
+      return [
+        {
+          label: "Total Budget",
+          value: formatCurrency(budget?.totalBudget || 0),
+          progress: budget?.hasBudget ? 100 : 0,
+          tone: "safe" as const,
+        },
+        {
+          label: "Spent",
+          value: formatCurrency(budget?.spent || 0),
+          progress: budget?.usagePercentage || 0,
+          tone: getBudgetTone(budget?.usagePercentage || 0),
+        },
+        {
+          label: isOverBudget ? "Over Budget" : "Remaining",
+          value: isOverBudget
+            ? formatCurrency(Math.abs(budget?.remaining || 0))
+            : formatCurrency(budget?.remaining || 0),
+          progress: budget?.hasBudget ? Math.max(100 - budget.usagePercentage, 0) : 0,
+          tone: isOverBudget ? ("critical" as const) : getBudgetTone(budget?.usagePercentage || 0),
+        },
+        {
+          label: "Usage",
+          value: formatPercentage(budget?.usagePercentage || 0, {
+            decimalPlaces: 1,
+          }),
+          progress: budget?.usagePercentage || 0,
+          tone: getBudgetTone(budget?.usagePercentage || 0),
+        },
+      ];
+    },
     [budget?.totalBudget, budget?.spent, budget?.remaining, budget?.usagePercentage, budget?.hasBudget, formatCurrency]
   );
 
