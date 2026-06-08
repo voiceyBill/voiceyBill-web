@@ -35,6 +35,7 @@ export const HeaderBar = ({ onLogoutClick, sidebarCollapsed, onSidebarToggle }: 
             className="hidden md:inline-flex h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/65 border border-transparent hover:border-border/30 transition-all duration-200"
             onClick={onSidebarToggle}
             title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <PanelLeft className="h-4 w-4" />
           </Button>
@@ -49,6 +50,7 @@ export const HeaderBar = ({ onLogoutClick, sidebarCollapsed, onSidebarToggle }: 
             className="h-8 w-8 sm:h-9 sm:w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/65 border border-transparent hover:border-border/30 transition-all duration-200"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             title="Toggle Theme"
+            aria-label="Toggle theme"
           >
             {theme === "dark" ? (
               <Sun className="h-4 w-4 text-primary" />

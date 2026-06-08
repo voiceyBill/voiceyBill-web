@@ -82,6 +82,7 @@ export const NotificationDropdown = () => {
         className="h-8 w-8 sm:h-9 sm:w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/65 border border-transparent hover:border-border/30 transition-all duration-200"
         onClick={() => setIsOpen(!isOpen)}
         title="Notifications"
+        aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
       >
         <Bell className="h-4 w-4" />
       </Button>
@@ -117,6 +118,7 @@ export const NotificationDropdown = () => {
                   size="icon"
                   className="h-6 w-6"
                   onClick={() => dispatch(clearNotifications())}
+                  aria-label="Clear all notifications"
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
@@ -160,6 +162,7 @@ export const NotificationDropdown = () => {
                       variant="ghost"
                       size="icon"
                       className="h-5 w-5 shrink-0"
+                      aria-label="Remove notification"
                       onClick={(e) =>
                         handleRemoveNotification(e, notification.id)
                       }

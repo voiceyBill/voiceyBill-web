@@ -158,6 +158,7 @@ export const DateRangeSelect = ({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
+          aria-label={`Select date range: ${displayText}`}
           className={cn(
             `w-[200px] flex items-center justify-between text-left font-normal !bg-[var(--secondary-dark-color)]
             border-gray-700 !text-white !cursor-pointer`,

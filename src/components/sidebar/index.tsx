@@ -181,6 +181,7 @@ const Sidebar = ({ className, onLinkClick, collapsed = false }: SidebarProps) =>
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileOpen(true)}
+        aria-label="Open navigation menu"
         className="fixed top-3 left-2 z-50 md:hidden p-2 rounded-lg bg-white/70 dark:bg-zinc-950/25 backdrop-blur-xl border border-zinc-150/70 dark:border-white/5"
       >
         <Menu className="h-5 w-5 text-foreground" />

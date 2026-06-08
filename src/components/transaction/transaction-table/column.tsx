@@ -133,12 +133,15 @@ export const transactionColumns = (
     {
       id: "select",
       header: ({ table }) => (
-        <Checkbox
-          className="!border-[var(--surface-border)] data-[state=checked]:!bg-foreground !text-background"
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
+        <div className="flex items-center">
+          <Checkbox
+            className="!border-[var(--surface-border)] data-[state=checked]:!bg-foreground !text-background"
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+          />
+          <span className="sr-only">Select all</span>
+        </div>
       ),
       cell: ({ row }) => (
         <Checkbox
@@ -335,6 +338,7 @@ export const transactionColumns = (
     },
     {
       id: "actions",
+      header: () => <span className="sr-only">Actions</span>,
       enableHiding: false,
       cell: ({ row }) => <ActionsCell row={row} />,
     },
@@ -381,7 +385,7 @@ const ActionsCell = ({ row }: { row: Row<TransactionType> }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
+        <Button variant="ghost" className="h-8 w-8 p-0" aria-label="Open actions menu">
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>

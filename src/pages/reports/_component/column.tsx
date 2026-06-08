@@ -116,6 +116,6 @@ export const reportColumns = ({
 
   {
     id: "-",
-    header: "",
+    header: () => <span className="sr-only">Spacer</span>,
   },
 ];
