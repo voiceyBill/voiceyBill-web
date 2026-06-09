@@ -150,133 +150,145 @@ function BudgetCategoryDistribution({
           </p>
         </div>
 
-        {chartData.length === 0 ? (
+        {categoryData.length === 0 ? (
           <div className="flex min-h-[260px] flex-col items-center justify-center px-6 py-10 text-center">
             <div className="mb-4 rounded-full bg-muted p-4">
               <WalletCards className="h-8 w-8 text-muted-foreground" />
             </div>
             <h4 className="text-sm font-semibold text-foreground">
-              No category spending yet
+              No category limits set yet
             </h4>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Category distribution will appear when expenses are recorded.
+              Define category limits in your budget to track category-specific spending.
             </p>
           </div>
         ) : (
           <div className="grid gap-6 p-5 lg:grid-cols-[minmax(300px,0.95fr)_minmax(360px,1.25fr)]">
             <div className="min-w-0">
-              <ChartContainer
-                config={chartConfig}
-                className="mx-auto aspect-square h-[280px] max-h-[280px] w-full"
-              >
-                <PieChart>
-                  <ChartTooltip
-                    cursor={false}
-                    content={
-                      <ChartTooltipContent
-                        className="rounded-xl border border-border bg-card p-2.5 shadow-lg"
-                        hideLabel
-                        formatter={(_, __, item) => {
-                          const payload =
-                            item.payload as (typeof categoryData)[number];
-
-                          return (
-                            <div className="grid gap-1">
-                              <div className="flex items-center gap-2 font-semibold text-foreground">
-                                <span
-                                  className="h-2.5 w-2.5 rounded-full"
-                                  style={{ backgroundColor: payload.fill }}
-                                />
-                                {payload.label}
-                              </div>
-                              <div className="text-muted-foreground">
-                                {formatCurrency(payload.spent)} /{" "}
-                                {formatCurrency(payload.limit)}
-                              </div>
-                              <div
-                                className={
-                                  payload.exceeded
-                                    ? "font-medium text-red-600"
-                                    : "text-muted-foreground"
-                                }
-                              >
-                                {Math.round(payload.usagePercentage)}% usage,{" "}
-                                {payload.sharePercentage}% of spending
-                              </div>
-                            </div>
-                          );
-                        }}
-                      />
-                    }
-                  />
-                  <Pie
-                    data={chartData}
-                    dataKey="spent"
-                    nameKey="label"
-                    innerRadius={72}
-                    outerRadius={98}
-                    paddingAngle={2}
-                    stroke="transparent"
-                    strokeWidth={0}
+              {chartData.length === 0 ? (
+                <div className="flex aspect-square h-[280px] max-h-[280px] w-full flex-col items-center justify-center border border-dashed border-border rounded-xl text-center p-6">
+                  <WalletCards className="h-8 w-8 text-muted-foreground mb-2" />
+                  <p className="text-sm font-semibold text-foreground">No category spending yet</p>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">
+                    Category distribution will appear here once expenses are recorded.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <ChartContainer
+                    config={chartConfig}
+                    className="mx-auto aspect-square h-[280px] max-h-[280px] w-full"
                   >
-                    {chartData.map((category) => (
-                      <Cell key={category.name} fill={category.fill} />
-                    ))}
-                    <Label
-                      content={({ viewBox }) => {
-                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                          const cx = viewBox.cx ?? 0;
-                          const cy = viewBox.cy ?? 0;
+                    <PieChart>
+                      <ChartTooltip
+                        cursor={false}
+                        content={
+                          <ChartTooltipContent
+                            className="rounded-xl border border-border bg-card p-2.5 shadow-lg"
+                            hideLabel
+                            formatter={(_, __, item) => {
+                              const payload =
+                                item.payload as (typeof categoryData)[number];
 
-                          return (
-                            <text
-                              x={cx}
-                              y={cy}
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                            >
-                              <tspan
-                                x={cx}
-                                y={cy - 4}
-                                className="fill-foreground text-2xl font-bold"
-                              >
-                                {formatCurrency(totalSpent)}
-                              </tspan>
-                              <tspan
-                                x={cx}
-                                y={cy + 18}
-                                className="fill-muted-foreground text-xs font-medium"
-                              >
-                                Total Spent
-                              </tspan>
-                            </text>
-                          );
+                              return (
+                                <div className="grid gap-1">
+                                  <div className="flex items-center gap-2 font-semibold text-foreground">
+                                    <span
+                                      className="h-2.5 w-2.5 rounded-full"
+                                      style={{ backgroundColor: payload.fill }}
+                                    />
+                                    {payload.label}
+                                  </div>
+                                  <div className="text-muted-foreground">
+                                    {formatCurrency(payload.spent)} /{" "}
+                                    {formatCurrency(payload.limit)}
+                                  </div>
+                                  <div
+                                    className={
+                                      payload.exceeded
+                                        ? "font-medium text-red-600"
+                                        : "text-muted-foreground"
+                                    }
+                                  >
+                                    {Math.round(payload.usagePercentage)}% usage,{" "}
+                                    {payload.sharePercentage}% of spending
+                                  </div>
+                                </div>
+                              );
+                            }}
+                          />
                         }
-                      }}
-                    />
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
+                      />
+                      <Pie
+                        data={chartData}
+                        dataKey="spent"
+                        nameKey="label"
+                        innerRadius={72}
+                        outerRadius={98}
+                        paddingAngle={2}
+                        stroke="transparent"
+                        strokeWidth={0}
+                      >
+                        {chartData.map((category) => (
+                          <Cell key={category.name} fill={category.fill} />
+                        ))}
+                        <Label
+                          content={({ viewBox }) => {
+                            if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                              const cx = viewBox.cx ?? 0;
+                              const cy = viewBox.cy ?? 0;
 
-              <div className="mt-4 flex flex-wrap gap-2 border-t border-border pt-4">
-                {chartData.map((category) => (
-                  <div
-                    key={category.name}
-                    className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs"
-                  >
-                    <span
-                      className="h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: category.fill }}
-                    />
-                    <span className="max-w-[150px] truncate font-medium text-foreground">
-                      {category.label}
-                    </span>
-                    <span className="font-semibold text-muted-foreground">
-                      {category.sharePercentage}%
-                    </span>
+                              return (
+                                <text
+                                  x={cx}
+                                  y={cy}
+                                  textAnchor="middle"
+                                  dominantBaseline="middle"
+                                >
+                                  <tspan
+                                    x={cx}
+                                    y={cy - 4}
+                                    className="fill-foreground text-2xl font-bold"
+                                  >
+                                    {formatCurrency(totalSpent)}
+                                  </tspan>
+                                  <tspan
+                                    x={cx}
+                                    y={cy + 18}
+                                    className="fill-muted-foreground text-xs font-medium"
+                                  >
+                                    Total Spent
+                                  </tspan>
+                                </text>
+                              );
+                            }
+                          }}
+                        />
+                      </Pie>
+                    </PieChart>
+                  </ChartContainer>
+
+                  <div className="mt-4 flex flex-wrap gap-2 border-t border-border pt-4">
+                    {chartData.map((category) => (
+                      <div
+                        key={category.name}
+                        className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs"
+                      >
+                        <span
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: category.fill }}
+                        />
+                        <span className="max-w-[150px] truncate font-medium text-foreground">
+                          {category.label}
+                        </span>
+                        <span className="font-semibold text-muted-foreground">
+                          {category.sharePercentage}%
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </div>
 
             <div className="max-h-[460px] space-y-3 overflow-y-auto pr-1">
@@ -477,7 +489,7 @@ export default function Budget() {
             value={selectedMonthValue}
             onValueChange={setSelectedMonthValue}
           >
-            <SelectTrigger className="w-full bg-white text-foreground sm:w-64">
+            <SelectTrigger className="w-full bg-background text-foreground sm:w-64">
               <SelectValue placeholder="Select budget month" />
             </SelectTrigger>
             <SelectContent>
