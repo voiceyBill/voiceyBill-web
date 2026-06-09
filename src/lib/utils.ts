@@ -175,7 +175,7 @@ export const generateCSV = (transactions: TransactionType[]): string => {
   const rows = transactions.map((tx) => [
     formatDateTime(tx.createdAt),
     `"${(tx.title || tx.description || "").replace(/"/g, '""')}"`,
-    `"${tx.description.replace(/"/g, '""')}"`,
+    `"${(tx.description || "").replace(/"/g, '""')}"`,
     tx.category || "",
     tx.type,
     tx.amount.toFixed(2),
@@ -371,9 +371,9 @@ export const generateStyledPDF = async (
       },
       {
         content:
-          tx.description.length > 30
-            ? tx.description.substring(0, 27) + "..."
-            : tx.description,
+          (tx.description || "").length > 30
+            ? (tx.description || "").substring(0, 27) + "..."
+            : (tx.description || ""),
         styles: { halign: "left" as const, fontSize: 8 },
       },
       {

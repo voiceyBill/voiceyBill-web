@@ -32,9 +32,13 @@ type Props = {
     from?: string;
     to?: string;
     format: "csv" | "pdf";
+    scope: "current" | "all";
   }) => void;
   isExporting?: boolean;
   transactions?: TransactionType[];
+  allTransactions?: TransactionType[];
+  totalAvailable?: number;
+  isFetchingAll?: boolean;
 };
 
 export default function ExportTransactionModal({
@@ -43,10 +47,14 @@ export default function ExportTransactionModal({
   onExport,
   isExporting = false,
   transactions = [],
+  allTransactions = [],
+  totalAvailable = 0,
+  isFetchingAll = false,
 }: Props) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [format, setFormat] = useState<"csv" | "pdf">("csv");
+  const [scope, setScope] = useState<"current" | "all">("all");
   const [dateError, setDateError] = useState("");
 
   // Reset form when modal opens
@@ -55,35 +63,37 @@ export default function ExportTransactionModal({
       setFrom("");
       setTo("");
       setFormat("csv");
+      setScope("all");
       setDateError("");
     }
   }, [open]);
 
+  const activeTransactions = scope === "current" ? transactions : allTransactions;
+
   const filterTransactionsByDate = () => {
-    if (!Array.isArray(transactions)) return [];
+    if (!Array.isArray(activeTransactions)) return [];
+    if (!from && !to) return activeTransactions;
 
-    let filtered = [...transactions];
+    const fromDate = from ? new Date(from) : null;
+    if (fromDate) fromDate.setHours(0, 0, 0, 0);
 
-    if (from) {
-      const fromDate = new Date(from);
-      fromDate.setHours(0, 0, 0, 0);
-      filtered = filtered.filter((tx) => {
-        const txDate = new Date(tx.date);
-        txDate.setHours(0, 0, 0, 0);
-        return txDate >= fromDate;
-      });
-    }
+    const toDate = to ? new Date(to) : null;
+    if (toDate) toDate.setHours(23, 59, 59, 999);
 
-    if (to) {
-      const toDate = new Date(to);
-      toDate.setHours(23, 59, 59, 999);
-      filtered = filtered.filter((tx) => {
-        const txDate = new Date(tx.date);
-        return txDate <= toDate;
-      });
-    }
+    return activeTransactions.filter((tx) => {
+      const txDate = new Date(tx.date);
+      const matchTxDate =
+        (!fromDate || txDate >= fromDate) &&
+        (!toDate || txDate <= toDate);
 
-    return filtered;
+      const createdAtDate = tx.createdAt ? new Date(tx.createdAt) : null;
+      const matchCreatedAt =
+        createdAtDate &&
+        (!fromDate || createdAtDate >= fromDate) &&
+        (!toDate || createdAtDate <= toDate);
+
+      return matchTxDate || matchCreatedAt;
+    });
   };
 
   const validateDates = () => {
@@ -118,6 +128,7 @@ export default function ExportTransactionModal({
       from: from || undefined,
       to: to || undefined,
       format,
+      scope,
     });
   };
 
@@ -125,6 +136,7 @@ export default function ExportTransactionModal({
     setFrom("");
     setTo("");
     setFormat("csv");
+    setScope("all");
     setDateError("");
   };
 
@@ -163,7 +175,9 @@ export default function ExportTransactionModal({
 
   const today = formatDate(new Date(), "yyyy-MM-dd");
   const filteredCount = filterTransactionsByDate().length;
-  const totalCount = Array.isArray(transactions) ? transactions.length : 0;
+  const totalCount = scope === "current"
+    ? (Array.isArray(transactions) ? transactions.length : 0)
+    : totalAvailable;
 
   const getDateRangeSummary = () => {
     if (from && to) {
@@ -177,11 +191,19 @@ export default function ExportTransactionModal({
     return null;
   };
 
+  const isRangeActive = (days: number) => {
+    if (!from || !to) return false;
+    const today = new Date();
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - days);
+    return from === formatDate(startDate, "yyyy-MM-dd") && to === formatDate(today, "yyyy-MM-dd");
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[520px] max-w-[95vw] p-0 overflow-hidden rounded-xl">
+      <DialogContent className="sm:max-w-[520px] max-w-[95vw] p-0 overflow-hidden rounded-xl max-h-[90vh] flex flex-col">
         {/* Header - Green gradient */}
-        <div className="bg-gradient-to-r from-green-600 to-green-500 dark:from-green-700 dark:to-green-600 px-4 sm:px-6 py-4">
+        <div className="bg-gradient-to-r from-green-600 to-green-500 dark:from-green-700 dark:to-green-600 px-4 sm:px-6 py-4 flex-shrink-0">
           <DialogHeader className="space-y-1">
             <DialogTitle className="text-white text-lg sm:text-xl font-semibold flex items-center gap-2">
               <Download className="h-5 w-5" />
@@ -193,7 +215,77 @@ export default function ExportTransactionModal({
           </DialogHeader>
         </div>
 
-        <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-6 max-h-[70vh] overflow-y-auto">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-6 flex-1 overflow-y-auto">
+          {/* Export Scope Section */}
+          <div className="space-y-3">
+            <Label className="text-sm font-semibold flex items-center gap-2">
+              <Download className="h-4 w-4 text-green-500" />
+              Export Scope
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              {/* Current Page Card */}
+              <Card
+                className={cn(
+                  "relative cursor-pointer transition-all duration-200 overflow-hidden",
+                  scope === "current"
+                    ? "border-2 border-green-500 shadow-md bg-gradient-to-br from-green-50 to-white dark:from-green-950/30 dark:to-gray-900"
+                    : "border hover:border-green-300 dark:hover:border-green-700 hover:shadow-sm",
+                  isExporting && "opacity-50 cursor-not-allowed",
+                )}
+                onClick={() => !isExporting && setScope("current")}
+              >
+                {scope === "current" && (
+                  <div className="absolute top-2 right-2">
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  </div>
+                )}
+                <div className="p-3 text-center">
+                  <p className="font-semibold text-xs sm:text-sm">
+                    Current Page
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Export only visible rows ({transactions.length})
+                  </p>
+                </div>
+              </Card>
+
+              {/* All Transactions Card */}
+              <Card
+                className={cn(
+                  "relative cursor-pointer transition-all duration-200 overflow-hidden",
+                  scope === "all"
+                    ? "border-2 border-green-500 shadow-md bg-gradient-to-br from-green-50 to-white dark:from-green-950/30 dark:to-gray-900"
+                    : "border hover:border-green-300 dark:hover:border-green-700 hover:shadow-sm",
+                  isExporting && "opacity-50 cursor-not-allowed",
+                )}
+                onClick={() => !isExporting && setScope("all")}
+              >
+                {scope === "all" && (
+                  <div className="absolute top-2 right-2">
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  </div>
+                )}
+                <div className="p-3 text-center flex flex-col items-center justify-center min-h-[58px]">
+                  {isFetchingAll ? (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Loading...
+                    </div>
+                  ) : (
+                    <>
+                      <p className="font-semibold text-xs sm:text-sm">
+                        All Transactions
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Export all records ({totalAvailable})
+                      </p>
+                    </>
+                  )}
+                </div>
+              </Card>
+            </div>
+          </div>
+
           {/* Date Range Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
@@ -202,15 +294,30 @@ export default function ExportTransactionModal({
                 <Label className="text-sm font-semibold">
                   Date Range (Optional)
                 </Label>
+                {(from || to) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFrom("");
+                      setTo("");
+                    }}
+                    className="text-xs text-red-500 hover:text-red-600 font-medium ml-2 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
 
               {/* Quick range buttons */}
               <div className="flex gap-1">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant={isRangeActive(7) ? "secondary" : "ghost"}
                   size="sm"
-                  className="h-7 text-xs px-2 sm:px-3"
+                  className={cn(
+                    "h-7 text-xs px-2 sm:px-3",
+                    isRangeActive(7) && "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-950/40 dark:text-green-300 dark:hover:bg-green-950/60 font-semibold"
+                  )}
                   onClick={() => handleQuickRange(7)}
                   disabled={isExporting}
                 >
@@ -218,9 +325,12 @@ export default function ExportTransactionModal({
                 </Button>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant={isRangeActive(30) ? "secondary" : "ghost"}
                   size="sm"
-                  className="h-7 text-xs px-2 sm:px-3"
+                  className={cn(
+                    "h-7 text-xs px-2 sm:px-3",
+                    isRangeActive(30) && "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-950/40 dark:text-green-300 dark:hover:bg-green-950/60 font-semibold"
+                  )}
                   onClick={() => handleQuickRange(30)}
                   disabled={isExporting}
                 >
@@ -228,9 +338,12 @@ export default function ExportTransactionModal({
                 </Button>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant={isRangeActive(90) ? "secondary" : "ghost"}
                   size="sm"
-                  className="h-7 text-xs px-2 sm:px-3"
+                  className={cn(
+                    "h-7 text-xs px-2 sm:px-3",
+                    isRangeActive(90) && "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-950/40 dark:text-green-300 dark:hover:bg-green-950/60 font-semibold"
+                  )}
                   onClick={() => handleQuickRange(90)}
                   disabled={isExporting}
                 >
@@ -459,18 +572,10 @@ export default function ExportTransactionModal({
             </div>
           </div>
 
-          {/* Info tip */}
-          <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 border border-blue-100 dark:border-blue-800">
-            <p className="text-xs text-blue-700 dark:text-blue-300">
-              💡 <span className="font-medium">Tip:</span> Use date filters to
-              export specific time periods. Leave empty to export all{" "}
-              {totalCount} transactions.
-            </p>
-          </div>
         </div>
 
         {/* Footer - with green export button */}
-        <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 dark:bg-gray-900/50 border-t dark:border-gray-800 flex-col sm:flex-row gap-2">
+        <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 dark:bg-gray-900/50 border-t dark:border-gray-800 flex-col sm:flex-row gap-2 flex-shrink-0">
           <Button
             variant="outline"
             onClick={handleClose}
@@ -482,13 +587,18 @@ export default function ExportTransactionModal({
           </Button>
           <Button
             onClick={handleExport}
-            disabled={isExporting || filteredCount === 0}
+            disabled={isExporting || isFetchingAll || filteredCount === 0}
             className="gap-2 flex-1 w-full sm:w-auto order-1 sm:order-2 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
           >
             {isExporting ? (
               <>
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 Exporting...
+              </>
+            ) : isFetchingAll ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                Fetching data...
               </>
             ) : (
               <>

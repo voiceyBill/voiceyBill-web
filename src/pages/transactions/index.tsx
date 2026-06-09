@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
 
-import { useGetAllTransactionsQuery } from "@/features/transaction/transactionAPI";
+import {
+  useGetAllTransactionsQuery,
+} from "@/features/transaction/transactionAPI";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/page-layout";
@@ -34,6 +36,21 @@ export default function Transactions() {
     pageSize: filters.pageSize,
   });
 
+  const { data: allExportData, isFetching: isFetchingAll } = useGetAllTransactionsQuery(
+    {
+      keyword: filters.keyword || undefined,
+      type: filters.type,
+      recurringStatus: filters.recurringStatus,
+      pageNumber: 1,
+      pageSize: 50000,
+    },
+    {
+      skip: !exportModalOpen,
+    }
+  );
+
+  const totalCount = data?.pagination?.totalCount ?? 0;
+
   const handleFilterChange = (patch: Partial<FilterState>) => {
     setFilters((prev) => ({
       ...prev,
@@ -48,29 +65,28 @@ export default function Transactions() {
     to?: string,
   ): TransactionType[] => {
     if (!Array.isArray(transactions)) return [];
+    if (!from && !to) return transactions;
 
-    let filtered = [...transactions];
+    const fromDate = from ? new Date(from) : null;
+    if (fromDate) fromDate.setHours(0, 0, 0, 0);
 
-    if (from) {
-      const fromDate = new Date(from);
-      fromDate.setHours(0, 0, 0, 0);
-      filtered = filtered.filter((tx) => {
-        const txDate = new Date(tx.date);
-        txDate.setHours(0, 0, 0, 0);
-        return txDate >= fromDate;
-      });
-    }
+    const toDate = to ? new Date(to) : null;
+    if (toDate) toDate.setHours(23, 59, 59, 999);
 
-    if (to) {
-      const toDate = new Date(to);
-      toDate.setHours(23, 59, 59, 999);
-      filtered = filtered.filter((tx) => {
-        const txDate = new Date(tx.date);
-        return txDate <= toDate;
-      });
-    }
+    return transactions.filter((tx) => {
+      const txDate = new Date(tx.date);
+      const matchTxDate =
+        (!fromDate || txDate >= fromDate) &&
+        (!toDate || txDate <= toDate);
 
-    return filtered;
+      const createdAtDate = tx.createdAt ? new Date(tx.createdAt) : null;
+      const matchCreatedAt =
+        createdAtDate &&
+        (!fromDate || createdAtDate >= fromDate) &&
+        (!toDate || createdAtDate <= toDate);
+
+      return matchTxDate || matchCreatedAt;
+    });
   };
 
   // Helper function to filter transactions by search keyword
@@ -111,6 +127,7 @@ export default function Transactions() {
     from?: string;
     to?: string;
     format: "csv" | "pdf";
+    scope: "current" | "all";
   }) => {
     if (isExporting) return;
 
@@ -123,14 +140,17 @@ export default function Transactions() {
         id: toastId,
       });
 
-      const allTransactions: TransactionType[] = data?.transactions ?? [];
+      const transactionsToExport =
+        params.scope === "current"
+          ? safeData
+          : (allExportData?.transactions ?? []);
 
-      if (allTransactions.length === 0) {
+      if (transactionsToExport.length === 0) {
         toast.error("No transactions available for export", { id: toastId });
         return;
       }
 
-      let filteredTransactions = allTransactions;
+      let filteredTransactions = transactionsToExport;
 
       filteredTransactions = filterTransactionsByKeyword(
         filteredTransactions,
@@ -199,15 +219,15 @@ export default function Transactions() {
 
       toast.error(
         err?.data?.message ||
-          err?.message ||
-          "Export failed. Please try again.",
+        err?.message ||
+        "Export failed. Please try again.",
         { id: toastId },
       );
     } finally {
       setIsExporting(false);
     }
   };
-  
+
   const safeData = data?.transactions ?? [];
   const safePagination = {
     totalItems: data?.pagination?.totalCount ?? 0,
@@ -244,6 +264,9 @@ export default function Transactions() {
         onExport={handleExport}
         isExporting={isExporting}
         transactions={safeData}
+        allTransactions={allExportData?.transactions ?? []}
+        totalAvailable={totalCount}
+        isFetchingAll={isFetchingAll}
       />
 
       <Card className="border-0 shadow-none">
