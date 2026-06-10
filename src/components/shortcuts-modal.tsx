@@ -11,7 +11,7 @@ const shortcuts = {
     { key: "N", desc: "Add transaction" },
     { key: "E", desc: "Export transactions" },
     { key: "/", desc: "Focus search" },
-    { key: "?", desc: "Show shortcuts" },
+    { key: "H", desc: "Show shortcuts" },
     { key: "Esc", desc: "Close / dismiss" },
   ],
 };
