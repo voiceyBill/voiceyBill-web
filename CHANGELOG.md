@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.6.0](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.5.1...voiceybill-client-v1.6.0) (2026-06-12)
+
+
+### Features
+
+* **auth:** Configure Google OAuth authentication ([#202](https://github.com/voiceyBill/voiceyBill-web/issues/202)) ([2455a08](https://github.com/voiceyBill/voiceyBill-web/commit/2455a0882b3b38257c1106531c4bfd369e2e0798))
+* **categories:** Add custom category management in Settings ([#124](https://github.com/voiceyBill/voiceyBill-web/issues/124)) ([#134](https://github.com/voiceyBill/voiceyBill-web/issues/134)) ([aec610b](https://github.com/voiceyBill/voiceyBill-web/commit/aec610be652924bc4a9826321ad389d42e304968))
+* **shortcuts:** Add global keyboard shortcuts with modal ([#208](https://github.com/voiceyBill/voiceyBill-web/issues/208)) ([6a10e1e](https://github.com/voiceyBill/voiceyBill-web/commit/6a10e1e479e4f31dbaad1bd383ab2d590667cda4))
+* **transactions:** Unified Export transactions to PDF with CSV using frontend data (no backend query) ([#195](https://github.com/voiceyBill/voiceyBill-web/issues/195)) ([37b7c90](https://github.com/voiceyBill/voiceyBill-web/commit/37b7c90cc37aa86871846494f9fc87c55a21e0af))
+* **ui:** Added CSV Export Functionality to the Transaction History Dashboard ([#145](https://github.com/voiceyBill/voiceyBill-web/issues/145)) ([2716637](https://github.com/voiceyBill/voiceyBill-web/commit/2716637d5c89ef135c3303b1366a0ea82b903bcb))
+
+
+### Bug Fixes
+
+* Budget page month selector theme and category list visibility ([#206](https://github.com/voiceyBill/voiceyBill-web/issues/206)) ([aee3a3a](https://github.com/voiceyBill/voiceyBill-web/commit/aee3a3a98bb50bca41064e006dd95cd79850df64))
+* **client:** Remove duplicate hamburger and layout overlay ([#183](https://github.com/voiceyBill/voiceyBill-web/issues/183)) ([9d5fddc](https://github.com/voiceyBill/voiceyBill-web/commit/9d5fddc671c050b3bdbbcfed5afa291eeb96a34a))
+* **frontend:** Improve features section tablet grid layout ([#186](https://github.com/voiceyBill/voiceyBill-web/issues/186)) ([c041ab8](https://github.com/voiceyBill/voiceyBill-web/commit/c041ab8d2fcb99bb4b233c596c2238b2f2a577c5))
+* **ui:** Improve responsive button layout in transactions page header ([#213](https://github.com/voiceyBill/voiceyBill-web/issues/213)) ([640b318](https://github.com/voiceyBill/voiceyBill-web/commit/640b31811d62f90b6211b33b81f91eea7264e40a))
+* **ui:** Resolve export scope, date range filtering, and PDF export crash ([#207](https://github.com/voiceyBill/voiceyBill-web/issues/207)) ([a8fcf95](https://github.com/voiceyBill/voiceyBill-web/commit/a8fcf95e98dd6f3f303ef01a4050fadd94eba326))
+* **ui:** Resolve WCAG 2.1 Accessibility Violations on Dashboard Overview Page ([#197](https://github.com/voiceyBill/voiceyBill-web/issues/197)) ([50db6b6](https://github.com/voiceyBill/voiceyBill-web/commit/50db6b61219a998cab626485f342ab3f7f2c09b4))
+
 ## [1.5.1](https://github.com/voiceyBill/voiceyBill-web/compare/voiceybill-client-v1.5.0...voiceybill-client-v1.5.1) (2026-06-06)
 
 
