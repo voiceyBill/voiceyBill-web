@@ -9,6 +9,7 @@ import type {
   ResetPasswordResponse,
   VerifyOtpRequest,
   VerifyOtpResponse,
+  RefreshTokenResponse
 } from "./authType";
 
 export const authApi = apiClient.injectEndpoints({
@@ -56,6 +57,14 @@ export const authApi = apiClient.injectEndpoints({
       }),
     }),
 
+    googleLogin: builder.mutation<LoginResponse, { idToken: string }>({
+      query: (body) => ({
+        url: "/auth/google",
+        method: "POST",
+        body,
+      }),
+    }),
+
     //skip
     logout: builder.mutation({
       query: () => ({
@@ -63,10 +72,11 @@ export const authApi = apiClient.injectEndpoints({
         method: "POST",
       }),
     }),
-    refresh: builder.mutation({
-      query: () => ({
+    refresh: builder.mutation<RefreshTokenResponse,{refreshToken:string}>({
+      query: (body) => ({
         url: "/auth/refresh-token",
         method: "POST",
+        body
       }),
     }),
   }),
@@ -79,6 +89,7 @@ export const {
   useResendOtpMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useGoogleLoginMutation,
   useRefreshMutation,
   useLogoutMutation,
 } = authApi;

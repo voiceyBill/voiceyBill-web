@@ -1,6 +1,6 @@
 import * as z from "zod";
-import { useEffect, useState } from "react";
-import { Calendar, Loader } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Bookmark, BookmarkCheck, Calendar, Loader } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -36,9 +36,9 @@ import VoiceRecorder from "./voice-recorder";
 import {
   _TRANSACTION_FREQUENCY,
   _TRANSACTION_TYPE,
-  CATEGORIES,
   PAYMENT_METHODS,
 } from "@/constant";
+import { useGetCategoriesQuery, useCreateCategoryMutation } from "@/features/category/categoryAPI";
 import { Switch } from "../ui/switch";
 import CurrencyInputField from "../ui/currency-input";
 import { SingleSelector } from "../ui/single-select";
@@ -100,6 +100,16 @@ const TransactionForm = (props: {
   } = props;
 
   const [isScanning, setIsScanning] = useState(false);
+  const [savePermanently, setSavePermanently] = useState(false);
+  const categoryInputRef = useRef("");
+  const [categoryInputDisplay, setCategoryInputDisplay] = useState("");
+  const { data: categoriesData } = useGetCategoriesQuery();
+  const [createCategory] = useCreateCategoryMutation();
+  const categoryOptions = (categoriesData?.data ?? []).map((cat) => ({
+    value: cat.name.toLowerCase(),
+    label: cat.name,
+    color: cat.color,
+  }));
   const { user } = useTypedSelector((state) => state.auth);
   const baseCurrency = user?.baseCurrency || "USD";
   const { data: currencyData } = useGetSupportedCurrenciesQuery();
@@ -459,16 +469,82 @@ const TransactionForm = (props: {
                   <FormLabel>Category</FormLabel>
                   <SingleSelector
                     value={
-                      CATEGORIES.find((opt) => opt.value === field.value) ||
-                      field.value
+                      categoryOptions.find((opt) => opt.value === field.value) ||
+                      (field.value
                         ? { value: field.value, label: field.value }
-                        : undefined
+                        : undefined)
                     }
                     onChange={(option) => field.onChange(option.value)}
-                    options={CATEGORIES}
+                    options={categoryOptions}
                     placeholder="Select or type a category"
-                    creatable
                     disabled={isScanning}
+                    inputProps={{
+                      onValueChange: (val) => {
+                        categoryInputRef.current = val;
+                        setCategoryInputDisplay(val);
+                      },
+                    }}
+                    emptyIndicator={
+                      <div className="border-t mx-1 mt-1 pt-1">
+                        <div
+                          className="flex items-center gap-2.5 px-2 py-2 rounded-sm hover:bg-accent cursor-pointer"
+                          onMouseDown={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const name = categoryInputRef.current.trim();
+                            if (!name) return;
+                            try {
+                              if (savePermanently) {
+                                const colors = ["#22C55E","#F97316","#3B82F6","#8B5CF6","#EC4899","#F59E0B","#EF4444","#06B6D4"];
+                                const color = colors[name.length % colors.length];
+                                await createCategory({ name, color }).unwrap();
+                                toast.success(`"${name}" saved to your categories`);
+                              }
+                              field.onChange(name.toLowerCase());
+                              categoryInputRef.current = "";
+                              setCategoryInputDisplay("");
+                            } catch {
+                              toast.error("Failed to save category");
+                            }
+                          }}
+                        >
+                          <div
+                            className="h-5 w-5 rounded-full shrink-0 flex items-center justify-center text-white text-[10px] font-bold"
+                            style={{
+                              backgroundColor: categoryInputDisplay.trim()
+                                ? ["#22C55E","#F97316","#3B82F6","#8B5CF6","#EC4899","#F59E0B","#EF4444","#06B6D4"][categoryInputDisplay.trim().length % 8]
+                                : "#6B7280",
+                            }}
+                          >
+                            {categoryInputDisplay.trim().charAt(0).toUpperCase() || "+"}
+                          </div>
+                          <span className="flex-1 text-sm truncate">
+                            {categoryInputDisplay.trim()
+                              ? `Add "${categoryInputDisplay.trim()}"`
+                              : "Type a category name"}
+                          </span>
+                          <div
+                            className="shrink-0 p-0.5 rounded hover:bg-muted"
+                            title={savePermanently ? "Save permanently — click to change" : "Use once — click to save permanently"}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setSavePermanently((prev) => !prev);
+                            }}
+                          >
+                            {savePermanently
+                              ? <BookmarkCheck className="h-4 w-4 text-primary" />
+                              : <Bookmark className="h-4 w-4 text-muted-foreground" />
+                            }
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground px-2 pb-2">
+                          {savePermanently
+                            ? "Will be saved to your categories"
+                            : "For this transaction only"}
+                        </p>
+                      </div>
+                    }
                   />
                   <FormMessage />
                 </FormItem>
@@ -666,6 +742,7 @@ const TransactionForm = (props: {
           )}
         </form>
       </Form>
+
     </div>
   );
 };

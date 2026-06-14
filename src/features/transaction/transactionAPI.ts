@@ -45,6 +45,8 @@ export const transactionApi = apiClient.injectEndpoints({
           keyword = undefined,
           type = undefined,
           recurringStatus = undefined,
+          startDate = undefined,
+          endDate = undefined,
           pageNumber = 1,
           pageSize = 10,
         } = params;
@@ -56,6 +58,8 @@ export const transactionApi = apiClient.injectEndpoints({
             keyword,
             type,
             recurringStatus,
+            startDate,
+            endDate,
             pageNumber,
             pageSize,
           },
@@ -117,6 +121,24 @@ export const transactionApi = apiClient.injectEndpoints({
       }),
       invalidatesTags: ["transactions", "analytics", "budget"],
     }),
+    // exportTransactions: builder.query<
+    //   Blob,
+    //   {
+    //     keyword?: string;
+    //     type?: string;
+    //     recurringStatus?: string;
+    //     from?: string;
+    //     to?: string;
+    //     format?: "csv" | "pdf";
+    //   }
+    // >({
+    //   query: (params) => ({
+    //     url: "/transaction/export",
+    //     method: "GET",
+    //     params,
+    //     responseHandler: (res) => res.blob(),
+    //   }),
+    // }),
   }),
 });
 
@@ -131,4 +153,5 @@ export const {
   useBulkImportTransactionMutation,
   useDeleteTransactionMutation,
   useBulkDeleteTransactionMutation,
+  // useLazyExportTransactionsQuery,
 } = transactionApi;

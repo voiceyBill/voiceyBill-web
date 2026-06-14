@@ -17,10 +17,11 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
-import { useLoginMutation } from "@/features/auth/authAPI";
+import { useLoginMutation, useGoogleLoginMutation } from "@/features/auth/authAPI";
 import { useAppDispatch } from "@/app/hook";
 import { setCredentials } from "@/features/auth/authSlice";
 import type { ErrorResponse } from "@/features/auth/authType";
+import { GoogleSignInButton } from "@/components/google-signin-button";
 
 const schema = z.object({
   email: z.string().email("Invalid email address"),
@@ -36,6 +37,7 @@ const SignInForm = ({
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [login, { isLoading }] = useLoginMutation();
+  const [googleLogin, { isLoading: isGoogleLoading }] = useGoogleLoginMutation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -65,6 +67,27 @@ const SignInForm = ({
       });
   };
 
+  const handleGoogleSuccess = (idToken: string) => {
+    googleLogin({ idToken })
+      .unwrap()
+      .then((data) => {
+        dispatch(setCredentials(data));
+        toast.success("Google sign-in successful");
+        setTimeout(() => {
+          navigate(PROTECTED_ROUTES.OVERVIEW);
+        }, 1000);
+      })
+      .catch((error) => {
+        const apiError = error as ErrorResponse;
+        toast.error(apiError.data?.message || "Failed to sign in with Google");
+      });
+  };
+
+  const handleGoogleError = (error: string) => {
+    toast.error(error);
+  };
+
+
   return (
     <Form {...form}>
       <form
@@ -81,6 +104,21 @@ const SignInForm = ({
             Sign in to your account to continue
           </p>
         </div>
+
+        {/* Google Sign-In Button */}
+        <GoogleSignInButton
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+          isLoading={isGoogleLoading}
+        />
+
+        {/* Divider */}
+        <div className="relative flex items-center gap-4">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs text-muted-foreground px-2">Or continue with email</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+
 
         {/* Fields */}
         <div className="flex flex-col gap-4">

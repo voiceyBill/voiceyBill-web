@@ -26,6 +26,8 @@ export interface GetAllTransactionParams {
   keyword?: string;
   type?: _TransactionType;
   recurringStatus?: "RECURRING" | "NON_RECURRING";
+  startDate?: string;
+  endDate?: string;
   pageNumber?: number;
   pageSize?: number;
 }
@@ -35,6 +37,7 @@ export interface TransactionType {
   userId: string;
   title: string;
   type: _TransactionType;
+  recurringStatus?: "RECURRING" | "NON_RECURRING";
   amount: number;
   originalAmount?: number | null;
   originalCurrency?: string | null;
@@ -113,3 +116,16 @@ export interface BulkTransactionType {
 export interface BulkImportTransactionPayload {
   transactions: BulkTransactionType[];
 }
+
+
+export type TransactionFilterType = "INCOME" | "EXPENSE";
+
+export type RecurringStatus = "RECURRING" | "NON_RECURRING";
+
+export type FilterState = {
+  keyword: string;
+  type?: TransactionFilterType;
+  recurringStatus?: RecurringStatus;
+  pageNumber: number;
+  pageSize: number;
+};

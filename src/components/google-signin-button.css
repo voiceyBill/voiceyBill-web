@@ -1,0 +1,49 @@
+/* Google Sign-In Button Styling */
+
+/* Light theme - uses light background with subtle border */
+.gsi_outer_button {
+  background-color: var(--background) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.375rem !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  transition: background-color 0.2s ease !important;
+  padding: 0.5rem !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.gsi_outer_button:hover {
+  background-color: var(--accent) !important;
+}
+
+.gsi_outer_button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ring) !important;
+}
+
+/* Dark theme - uses darker input background with subtle overlay */
+.dark .gsi_outer_button {
+  background-color: var(--input) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.dark .gsi_outer_button:hover {
+  background-color: var(--accent) !important;
+}
+
+.dark .gsi_outer_button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ring) !important;
+}
+
+/* Google button text styling */
+.gsi_button_text {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--foreground) !important;
+}
+
+/* Ensure proper container sizing */
+.gsi_outer_button_inner {
+  padding: 0 !important;
+}

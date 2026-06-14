@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PasswordInput from "@/components/password-input";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
-import { AUTH_ROUTES } from "@/routes/common/routePath";
+import { AUTH_ROUTES, PROTECTED_ROUTES } from "@/routes/common/routePath";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -16,8 +16,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useRegisterMutation } from "@/features/auth/authAPI";
+import { useRegisterMutation, useGoogleLoginMutation } from "@/features/auth/authAPI";
 import type { ErrorResponse } from "@/features/auth/authType";
+import { GoogleSignInButton } from "@/components/google-signin-button";
+import { useAppDispatch } from "@/app/hook";
+import { setCredentials } from "@/features/auth/authSlice";
 
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -33,8 +36,10 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const SignUpForm = () => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [register, { isLoading }] = useRegisterMutation();
+  const [googleLogin, { isLoading: isGoogleLoading }] = useGoogleLoginMutation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -65,12 +70,32 @@ const SignUpForm = () => {
         if (apiError.data?.errorCode === "AUTH_EMAIL_ALREADY_EXISTS") {
           toast.error(
             apiError.data?.message ||
-              "An account with this email already exists."
+            "An account with this email already exists."
           );
           return;
         }
         toast.error(apiError.data?.message || "Failed to sign up");
       });
+  };
+
+  const handleGoogleSuccess = (idToken: string) => {
+    googleLogin({ idToken })
+      .unwrap()
+      .then((data) => {
+        dispatch(setCredentials(data));
+        toast.success("Google sign-up successful");
+        setTimeout(() => {
+          navigate(PROTECTED_ROUTES.OVERVIEW);
+        }, 1000);
+      })
+      .catch((error) => {
+        const apiError = error as ErrorResponse;
+        toast.error(apiError.data?.message || "Failed to sign up with Google");
+      });
+  };
+
+  const handleGoogleError = (error: string) => {
+    toast.error(error);
   };
 
   return (
@@ -84,6 +109,20 @@ const SignUpForm = () => {
           <p className="text-sm text-zinc-500 mt-1.5">
             Free forever. Set up in under two minutes.
           </p>
+        </div>
+
+        {/* Google Sign-In Button */}
+        <GoogleSignInButton
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+          isLoading={isGoogleLoading}
+        />
+
+        {/* Divider */}
+        <div className="relative flex items-center gap-4">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs text-muted-foreground px-2">Or continue with email</span>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         {/* Fields */}
@@ -138,9 +177,8 @@ const SignUpForm = () => {
                     {rules.map((rule) => (
                       <div
                         key={rule.label}
-                        className={`flex items-center gap-2 text-xs transition-colors ${
-                          rule.valid ? "text-[#015200]" : "text-zinc-400"
-                        }`}
+                        className={`flex items-center gap-2 text-xs transition-colors ${rule.valid ? "text-[#015200]" : "text-zinc-400"
+                          }`}
                       >
                         {rule.valid ? (
                           <Check className="h-3 w-3 shrink-0" />

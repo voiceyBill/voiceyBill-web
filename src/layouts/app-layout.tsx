@@ -6,48 +6,49 @@ import EditTransactionDrawer from "@/components/transaction/edit-transaction-dra
 import AddTransactionDrawer from "@/components/transaction/add-transaction-drawer";
 import LogoutDialog from "@/components/navbar/logout-dialog";
 import { cn } from "@/lib/utils";
+import { ShortcutsModalProvider } from "@/context/shortcuts-modal-context";
+import { ShortcutsModal } from "@/components/shortcuts-modal";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
-const AppLayout = () => {
+const AppLayoutInner = () => {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  useKeyboardShortcuts(); // ✅ now inside the provider
 
   return (
-    <>
-      <div className="min-h-screen flex bg-[var(--bg-color)] dark:bg-background transition-colors duration-300">
-        {/* Left Side: Permanent Sidebar for desktop & tablet */}
-        <Sidebar
-          className="hidden md:flex"
-          collapsed={sidebarCollapsed}
+    <div className="min-h-screen flex bg-[var(--bg-color)] dark:bg-background transition-colors duration-300">
+      <Sidebar className="hidden md:flex" collapsed={sidebarCollapsed} />
+      <div
+        data-sidebar={sidebarCollapsed ? "collapsed" : "expanded"}
+        className={cn(
+          "flex-1 flex flex-col min-h-screen w-full transition-all duration-300",
+          sidebarCollapsed ? "md:pl-16" : "md:pl-64",
+        )}
+      >
+        <HeaderBar
+          onLogoutClick={() => setIsLogoutDialogOpen(true)}
+          sidebarCollapsed={sidebarCollapsed}
+          onSidebarToggle={() => setSidebarCollapsed((v) => !v)}
         />
-
-        {/* Right Side: Header and Main Content Page Area */}
-        <div
-          data-sidebar={sidebarCollapsed ? "collapsed" : "expanded"}
-          className={cn(
-            "flex-1 flex flex-col min-h-screen w-full transition-all duration-300",
-            sidebarCollapsed ? "md:pl-16" : "md:pl-64"
-          )}
-        >
-          <HeaderBar
-            onLogoutClick={() => setIsLogoutDialogOpen(true)}
-            sidebarCollapsed={sidebarCollapsed}
-            onSidebarToggle={() => setSidebarCollapsed((v) => !v)}
-          />
-          <main className="w-full flex-1 flex flex-col">
-            <Outlet />
-          </main>
-        </div>
+        <main className="w-full flex-1 flex flex-col">
+          <Outlet />
+        </main>
       </div>
-
-      {/* Drawers and Modal Dialogs */}
       <AddTransactionDrawer hideTrigger />
       <EditTransactionDrawer />
       <LogoutDialog
         isOpen={isLogoutDialogOpen}
         setIsOpen={setIsLogoutDialogOpen}
       />
-    </>
+      <ShortcutsModal />
+    </div>
   );
 };
+
+const AppLayout = () => (
+  <ShortcutsModalProvider>
+    <AppLayoutInner />
+  </ShortcutsModalProvider>
+);
 
 export default AppLayout;

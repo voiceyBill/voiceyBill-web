@@ -16,6 +16,7 @@ import Account from "@/pages/settings/account";
 import Appearance from "@/pages/settings/appearance";
 import Billing from "@/pages/settings/billing";
 import Security from "@/pages/settings/security";
+import Categories from "@/pages/settings/categories";
 
 export const publicRoutePaths = [
   { path: PUBLIC_ROUTES.HOME, element: <Home /> },
@@ -45,6 +46,7 @@ export const protectedRoutePaths = [
       { path: PROTECTED_ROUTES.SETTINGS_APPEARANCE, element: <Appearance /> },
       { path: PROTECTED_ROUTES.SETTINGS_BILLING, element: <Billing /> },
       { path: PROTECTED_ROUTES.SETTINGS_SECURITY, element: <Security /> },
+      { path: PROTECTED_ROUTES.SETTINGS_CATEGORIES, element: <Categories /> },
     ],
   },
 ];

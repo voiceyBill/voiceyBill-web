@@ -30,6 +30,7 @@ export function UserNav({
           <Avatar className="h-7 w-7 !cursor-pointer transition-transform duration-200 hover:scale-105">
             <AvatarImage
               src={profilePicture || ""}
+              alt={userName ? `${userName}'s profile picture` : "User profile picture"}
               className="!cursor-pointer"
             />
             <AvatarFallback
