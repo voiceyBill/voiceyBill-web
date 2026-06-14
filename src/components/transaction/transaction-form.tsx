@@ -141,6 +141,8 @@ const TransactionForm = (props: {
     },
   });
 
+  const { formState } = form;
+
   useEffect(() => {
     if (isEdit && transactionId && editData) {
       const editAmount =
@@ -292,7 +294,7 @@ const TransactionForm = (props: {
                         shadow-sm border p-2 flex-1 justify-center
                         `,
                         field.value === _TRANSACTION_TYPE.INCOME &&
-                          "!border-primary",
+                        "!border-primary",
                       )}
                     >
                       <RadioGroupItem
@@ -311,7 +313,7 @@ const TransactionForm = (props: {
                         shadow-sm border p-2 flex-1 justify-center
                         `,
                         field.value === _TRANSACTION_TYPE.EXPENSE &&
-                          "!border-primary",
+                        "!border-primary",
                       )}
                     >
                       <RadioGroupItem
@@ -400,7 +402,7 @@ const TransactionForm = (props: {
                                   const flagUrl = getFlagUrl(field.value);
                                   const currency = (
                                     currencyData?.currencies &&
-                                    currencyData.currencies.length > 0
+                                      currencyData.currencies.length > 0
                                       ? currencyData.currencies
                                       : ALL_CURRENCIES
                                   ).find((c) => c.code === field.value);
@@ -428,7 +430,7 @@ const TransactionForm = (props: {
                       </FormControl>
                       <SelectContent>
                         {(currencyData?.currencies &&
-                        currencyData.currencies.length > 0
+                          currencyData.currencies.length > 0
                           ? currencyData.currencies
                           : ALL_CURRENCIES
                         ).map((c) => {
@@ -491,7 +493,7 @@ const TransactionForm = (props: {
                             const name = categoryInputRef.current.trim();
                             if (!name) return;
                             try {
-                              const colors = ["#22C55E","#F97316","#3B82F6","#8B5CF6","#EC4899","#F59E0B","#EF4444","#06B6D4"];
+                              const colors = ["#22C55E", "#F97316", "#3B82F6", "#8B5CF6", "#EC4899", "#F59E0B", "#EF4444", "#06B6D4"];
                               const color = colors[name.length % colors.length];
                               await createCategory({ name, color }).unwrap();
                               field.onChange(name.toLowerCase());
@@ -687,7 +689,9 @@ const TransactionForm = (props: {
             <Button
               type="submit"
               className="w-full"
-              disabled={isScanning || isCreating || isUpdating}
+              disabled={
+                isScanning || isCreating || isUpdating || (isEdit && !formState.isDirty)
+              }
             >
               {isCreating || isUpdating ? (
                 <Loader className="h-4 w-4 animate-spin" />
