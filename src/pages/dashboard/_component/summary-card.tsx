@@ -79,6 +79,7 @@ const SummaryCard: FC<SummaryCardProps> = ({
           isExpense: cardType === "expenses",
           showSign: false,
         }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isPercentageValue, cardType]
   );
 
