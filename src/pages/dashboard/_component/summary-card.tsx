@@ -37,6 +37,7 @@ interface SummaryCardProps {
 const getCardStatus = (value: number, cardType: CardType, expenseRatio?: number): CardStatus => {
   if (cardType === "savings") {
     if (value === 0) return { label: "No Savings Record", colorClass: "text-muted-foreground", Icon: TrendingDownIcon };
+    if (value < 0) return { label: "No Savings", colorClass: "text-rose-500 dark:text-rose-400", Icon: TrendingDownIcon };
     if (value < 10) return { label: "Low Savings", colorClass: "text-rose-500 dark:text-rose-400", Icon: TrendingDownIcon, description: `${value.toFixed(1)}% saved` };
     if (value < 20) return { label: "Moderate", colorClass: "text-amber-500 dark:text-amber-400", Icon: TrendingDownIcon, description: `${expenseRatio?.toFixed(0)}% spent` };
     if (expenseRatio && expenseRatio > 75) return { label: "High Spend", colorClass: "text-rose-500 dark:text-rose-400", Icon: TrendingDownIcon, description: `${expenseRatio.toFixed(0)}% spent` };
