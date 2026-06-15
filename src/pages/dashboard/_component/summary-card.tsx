@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { DateRangeEnum, DateRangeType } from "@/components/date-range-select";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
+import { useMemo } from "react";
 
 type CardType = "balance" | "income" | "expenses" | "savings";
 type CardStatus = {
@@ -70,13 +71,16 @@ const SummaryCard: FC<SummaryCardProps> = ({
   const trendDirection = showTrend && percentageChange !== 0 ? getTrendDirection(percentageChange, cardType) : null;
   const isNegativeBalance = cardType === "balance" && value < 0;
 
-  const formatCountupValue = (val: number) =>
-    isPercentageValue
-      ? formatPercentage(val, { decimalPlaces: 1 })
-      : formatCurrency(val, {
-        isExpense: cardType === "expenses",
-        showSign: false,
-      });
+  const formatCountupValue = useMemo(
+    () => (val: number) =>
+      isPercentageValue
+        ? formatPercentage(val, { decimalPlaces: 1 })
+        : formatCurrency(val, {
+          isExpense: cardType === "expenses",
+          showSign: false,
+        }),
+    [isPercentageValue, cardType]
+  );
 
   if (isLoading) {
     return (
