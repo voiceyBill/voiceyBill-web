@@ -68,7 +68,28 @@ const ExpensePieChart = ({ dateRange }: { dateRange?: DateRangeType }) => {
               <PieChart>
                 <ChartTooltip
                   cursor={false}
-                  content={<ChartTooltipContent className="bg-card border border-border shadow-lg rounded-xl p-2.5" />}
+                  content={
+                    <ChartTooltipContent
+                      className="bg-card border border-border shadow-lg rounded-xl p-2.5"
+                      formatter={(value, name, item) => {
+                        const pct = item?.payload?.percentage ?? 0;
+                        const formattedPct = pct > 0 && pct < 0.01 ? "<0.01%" : formatPercentage(pct, { decimalPlaces: 2 });
+                        return (
+                          <div className="flex items-center justify-between gap-6 w-full min-w-[200px]">
+                            <span className="text-muted-foreground capitalize">{name}</span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="font-semibold text-foreground metric-numeric">
+                                {formatCurrency(Number(value))}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground">
+                                ({formattedPct})
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      }}
+                    />
+                  }
                 />
                 <Pie
                   data={categories}
@@ -126,7 +147,7 @@ const ExpensePieChart = ({ dateRange }: { dateRange?: DateRangeType }) => {
                         {formatCurrency(entry.value, {})}
                       </span>
                       <span className="text-[11px] text-muted-foreground">
-                        ({formatPercentage(entry.percentage, { decimalPlaces: 0 })})
+                        ({entry.percentage > 0 && entry.percentage < 0.01 ? "<0.01%" : formatPercentage(entry.percentage, { decimalPlaces: 2 })})
                       </span>
                     </div>
                   </div>
