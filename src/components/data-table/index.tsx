@@ -11,7 +11,8 @@ import {
   VisibilityState,
   ColumnFiltersState,
 } from "@tanstack/react-table";
-import { Loader, PlusCircleIcon, Trash, X } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { Loader, SlidersHorizontal, Trash, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,6 +39,7 @@ interface FilterOption {
   key: string;
   label: string;
   options: { value: string; label: string }[];
+  icon?: LucideIcon;
 }
 
 interface DataTableProps<TData> {
@@ -158,7 +160,7 @@ export function DataTable<TData>({
 
         {/* Filters row — always single row */}
         <div className="flex items-center gap-2 shrink-0">
-          {filters.map(({ key, label, options }) => (
+          {filters.map(({ key, label, options, icon: FilterIcon }) => (
             <Select
               key={key}
               value={filterValues[key] ?? ""}
@@ -167,7 +169,11 @@ export function DataTable<TData>({
             >
               <SelectTrigger className="min-w-[120px] sm:min-w-[150px] flex-1 sm:flex-none">
                 <div className="flex items-center gap-1.5">
-                  <PlusCircleIcon className="h-3.5 w-3.5 opacity-50 shrink-0" />
+                  <div className="shrink-0">
+                    {React.createElement(FilterIcon ?? SlidersHorizontal, {
+                      className: "h-3.5 w-3.5 opacity-50",
+                    })}
+                  </div>
                   <SelectValue placeholder={label} />
                 </div>
               </SelectTrigger>
@@ -185,16 +191,16 @@ export function DataTable<TData>({
           {(searchTerm ||
             Object.keys(rowSelection).length > 0 ||
             Object.keys(filterValues).length > 0) && (
-            <Button
-              variant="ghost"
-              disabled={isLoading || isBulkDeleting}
-              onClick={handleClear}
-              className="h-8 px-2 shrink-0"
-            >
-              <X className="h-4 w-4 mr-1" />
-              Reset
-            </Button>
-          )}
+              <Button
+                variant="ghost"
+                disabled={isLoading || isBulkDeleting}
+                onClick={handleClear}
+                className="h-8 px-2 shrink-0"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Reset
+              </Button>
+            )}
 
           {((selection && hasSelections) || isBulkDeleting) && (
             <Button

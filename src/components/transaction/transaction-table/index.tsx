@@ -1,6 +1,7 @@
 import { DataTable } from "@/components/data-table";
 import { transactionColumns } from "./column";
 import { _TRANSACTION_TYPE } from "@/constant";
+import { CirclePlus, RefreshCcw } from "lucide-react";
 import { useEffect } from "react";
 import useDebouncedSearch from "@/hooks/use-debounce-search";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
@@ -149,6 +150,7 @@ const TransactionTable = ({
         {
           key: "type",
           label: "All Types",
+          icon: CirclePlus,
           options: [
             { value: _TRANSACTION_TYPE.INCOME, label: "Income" },
             { value: _TRANSACTION_TYPE.EXPENSE, label: "Expense" },
@@ -157,6 +159,7 @@ const TransactionTable = ({
         {
           key: "frequently",
           label: "Frequently",
+          icon: RefreshCcw,
           options: [
             { value: "RECURRING", label: "Recurring" },
             { value: "NON_RECURRING", label: "Non-Recurring" },

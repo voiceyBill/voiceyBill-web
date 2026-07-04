@@ -14,6 +14,12 @@ import {
   Car,
   HeartPulse,
   Tag,
+  ShoppingCart,
+  Music,
+  BookOpen,
+  TrendingUp,
+  DollarSign,
+  Home,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -48,7 +54,19 @@ type FrequencyMapType = {
 // Helper for category branding (Revolut/Wise style)
 const getCategoryConfig = (cat: string) => {
   const lower = cat.toLowerCase();
-  if (lower.includes("food") || lower.includes("dining")) {
+  
+  // Health/Medical check FIRST to avoid conflicts
+  if (lower.includes("health") || lower.includes("medical") || lower.includes("healthcare")) {
+    return {
+      icon: HeartPulse,
+      colorClass:
+        "bg-rose-50 text-rose-750 dark:bg-rose-950/20 dark:text-rose-400 border-rose-100/60 dark:border-rose-900/20",
+      iconContainer:
+        "bg-rose-100/80 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300",
+    };
+  }
+  
+  if (lower.includes("food") || lower.includes("dining") || lower.includes("restaurant")) {
     return {
       icon: Utensils,
       colorClass:
@@ -57,6 +75,7 @@ const getCategoryConfig = (cat: string) => {
         "bg-violet-100/80 dark:bg-violet-900/40 text-violet-600 dark:text-violet-300",
     };
   }
+  
   if (lower.includes("shopping") || lower.includes("retail")) {
     return {
       icon: ShoppingBag,
@@ -66,23 +85,37 @@ const getCategoryConfig = (cat: string) => {
         "bg-amber-100/80 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300",
     };
   }
+  
+  if (lower.includes("groceries") || lower.includes("grocery")) {
+    return {
+      icon: ShoppingCart,
+      colorClass:
+        "bg-orange-50 text-orange-750 dark:bg-orange-950/20 dark:text-orange-400 border-orange-100/60 dark:border-orange-900/20",
+      iconContainer:
+        "bg-orange-100/80 dark:bg-orange-900/40 text-orange-600 dark:text-orange-300",
+    };
+  }
+  
   if (
     lower.includes("bill") ||
     lower.includes("utilities") ||
-    lower.includes("rent")
+    lower.includes("rent") ||
+    lower.includes("housing")
   ) {
     return {
-      icon: Zap,
+      icon: lower.includes("housing") || lower.includes("rent") ? Home : Zap,
       colorClass:
         "bg-emerald-50 text-emerald-750 dark:bg-emerald-950/20 dark:text-emerald-400 border-emerald-100/60 dark:border-emerald-900/20",
       iconContainer:
         "bg-emerald-100/80 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300",
     };
   }
+  
   if (
     lower.includes("travel") ||
     lower.includes("transport") ||
-    lower.includes("car")
+    lower.includes("car") ||
+    lower.includes("transportation")
   ) {
     return {
       icon: Car,
@@ -92,15 +125,37 @@ const getCategoryConfig = (cat: string) => {
         "bg-blue-100/80 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300",
     };
   }
-  if (lower.includes("health") || lower.includes("medical")) {
+  
+  if (lower.includes("entertainment")) {
     return {
-      icon: HeartPulse,
+      icon: Music,
       colorClass:
-        "bg-rose-50 text-rose-750 dark:bg-rose-950/20 dark:text-rose-400 border-rose-100/60 dark:border-rose-900/20",
+        "bg-pink-50 text-pink-750 dark:bg-pink-950/20 dark:text-pink-400 border-pink-100/60 dark:border-pink-900/20",
       iconContainer:
-        "bg-rose-100/80 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300",
+        "bg-pink-100/80 dark:bg-pink-900/40 text-pink-600 dark:text-pink-300",
     };
   }
+  
+  if (lower.includes("education")) {
+    return {
+      icon: BookOpen,
+      colorClass:
+        "bg-indigo-50 text-indigo-750 dark:bg-indigo-950/20 dark:text-indigo-400 border-indigo-100/60 dark:border-indigo-900/20",
+      iconContainer:
+        "bg-indigo-100/80 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300",
+    };
+  }
+  
+  if (lower.includes("investment") || lower.includes("income")) {
+    return {
+      icon: TrendingUp,
+      colorClass:
+        "bg-green-50 text-green-750 dark:bg-green-950/20 dark:text-green-400 border-green-100/60 dark:border-green-900/20",
+      iconContainer:
+        "bg-green-100/80 dark:bg-green-900/40 text-green-600 dark:text-green-300",
+    };
+  }
+  
   return {
     icon: Tag,
     colorClass:
