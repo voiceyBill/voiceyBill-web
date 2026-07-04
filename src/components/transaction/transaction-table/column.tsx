@@ -1,3 +1,5 @@
+
+/* eslint-disable react-refresh/only-export-components */
 import {
   ArrowUpDown,
   CircleDot,
@@ -18,7 +20,6 @@ import {
   Music,
   BookOpen,
   TrendingUp,
-  DollarSign,
   Home,
 } from "lucide-react";
 import { format } from "date-fns";
