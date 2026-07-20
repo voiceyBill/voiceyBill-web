@@ -34,8 +34,47 @@
       ]
     },
     {
-      "source": "/.well-known/agent-skills/index.json",
+      "source": "/.well-known/agent-skills/(.*)",
       "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/openid-configuration",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/oauth-authorization-server",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/oauth-protected-resource",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
         {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
@@ -76,7 +115,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!robots\\.txt|sitemap\\.xml|auth\\.md|\\.well-known).*)",
+      "source": "/((?!robots\\.txt|sitemap\\.xml|auth\\.md|\\.well-known|webmcp\\.js).*)",
       "destination": "/index.html"
     }
   ]

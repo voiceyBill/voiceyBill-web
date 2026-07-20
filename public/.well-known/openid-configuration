@@ -1,0 +1,14 @@
+{
+  "issuer": "https://voiceybill-server.vercel.app",
+  "authorization_endpoint": "https://voiceybill-server.vercel.app/api/auth/login",
+  "token_endpoint": "https://voiceybill-server.vercel.app/api/auth/login",
+  "jwks_uri": "https://voiceybill-server.vercel.app/.well-known/jwks.json",
+  "registration_endpoint": "https://voiceybill-server.vercel.app/api/auth/signup",
+  "scopes_supported": ["openid", "profile", "email", "transactions", "analytics", "budgets", "reports"],
+  "response_types_supported": ["token"],
+  "grant_types_supported": ["password", "authorization_code"],
+  "subject_types_supported": ["public"],
+  "id_token_signing_alg_values_supported": ["RS256"],
+  "token_endpoint_auth_methods_supported": ["client_secret_post", "client_secret_basic"],
+  "claims_supported": ["sub", "email", "name", "iat", "exp"]
+}
