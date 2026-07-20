@@ -1,0 +1,35 @@
+;; ---------------------------------------------------------------------------
+;; DNS for AI Discovery (DNS-AID) records for voiceybill.com
+;; ---------------------------------------------------------------------------
+;; These records let AI agents discover VoiceyBill's entrypoints straight from
+;; DNS, using ServiceMode SVCB/HTTPS records (RFC 9460).
+;;
+;; Spec:  draft-mozleywilliams-dnsop-dnsaid
+;; SVCB:  https://www.rfc-editor.org/rfc/rfc9460
+;;
+;; Where to publish:
+;;   DNS for voiceybill.com is delegated to Cloudflare
+;;   (donovan.ns.cloudflare.com / pearl.ns.cloudflare.com), so add these in the
+;;   Cloudflare dashboard (DNS > Records). Cloudflare can also import this file
+;;   directly via DNS > Records > "Import and Export" > Import DNS records.
+;;
+;; DNSSEC:
+;;   Enable DNSSEC in Cloudflare (DNS > Settings > DNSSEC), then copy the DS
+;;   record Cloudflare generates into Namecheap (the registrar) so validating
+;;   resolvers return authenticated data. See docs/DNS-AID.md for steps.
+;; ---------------------------------------------------------------------------
+
+$ORIGIN voiceybill.com.
+$TTL 3600
+
+; Primary well-known agent-discovery entrypoint (HTTPS record).
+; Points agents at the HTTPS host that serves VoiceyBill's agent metadata:
+;   /.well-known/mcp/server-card.json, /.well-known/api-catalog,
+;   /.well-known/oauth-authorization-server, /auth.md, ...
+_index._agents   IN  HTTPS  1 voiceybill.com. ( alpn="h2,http/1.1" port=443 )
+
+; MCP service entrypoint (Model Context Protocol discovery).
+_mcp._agents     IN  SVCB   1 voiceybill.com. ( alpn="h2" port=443 mandatory=alpn,port )
+
+; Agent-to-agent (A2A) / API service entrypoint on the backend host.
+_a2a._agents     IN  SVCB   1 voiceybill-server.vercel.app. ( alpn="a2a" port=443 mandatory=alpn,port )
