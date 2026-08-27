@@ -65,14 +65,14 @@ export const authApi = apiClient.injectEndpoints({
       }),
     }),
 
-    //skip
-    logout: builder.mutation({
+
+    logout: builder.mutation<{ message: string }, void>({
       query: () => ({
         url: "/auth/logout",
         method: "POST",
       }),
     }),
-    refresh: builder.mutation<RefreshTokenResponse,{refreshToken:string}>({
+    refresh: builder.mutation<RefreshTokenResponse, { refreshToken: string }>({
       query: (body) => ({
         url: "/auth/refresh-token",
         method: "POST",
