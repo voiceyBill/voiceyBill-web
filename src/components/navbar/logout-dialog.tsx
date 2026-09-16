@@ -12,6 +12,7 @@ import { useAppDispatch } from "@/app/hook";
 import { logout } from "@/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import { PUBLIC_ROUTES } from "@/routes/common/routePath";
+import { useLogoutMutation } from "../../features/auth/authAPI";
 
 interface LogoutDialogProps {
   isOpen: boolean;
@@ -22,12 +23,19 @@ const LogoutDialog = ({ isOpen, setIsOpen }: LogoutDialogProps) => {
   const [isPending, startTransition] = useTransition();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [logoutApi] = useLogoutMutation();
 
   const handleLogout = () => {
-    startTransition(() => {
-      setIsOpen(false);
-      dispatch(logout());
-      navigate(PUBLIC_ROUTES.HOME);
+    startTransition(async () => {
+      try {
+        await logoutApi().unwrap();
+      } catch (error) {
+        console.error("Logout API failed:", error);
+      } finally {
+        setIsOpen(false);
+        dispatch(logout());
+        navigate(PUBLIC_ROUTES.HOME);
+      }
     });
   };
   return (
